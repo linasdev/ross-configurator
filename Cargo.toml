@@ -3,7 +3,12 @@ name = "ross-configurator"
 version = "0.1.0"
 authors = ["Linas Nikiperavičius <linas@linasdev.com>"]
 edition = "2018"
+license-file = "LICENSE.md"
+description = "Configurator for the Rusty Old Smart System"
+repository = "https://github.com/linasdev/ross-configurator"
+readme = "README.md"
 
 [dependencies]
 serialport = "4.0.1"
 ross-protocol = "1.0.1"
+clap = "2.33.3"
