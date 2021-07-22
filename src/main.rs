@@ -2,11 +2,11 @@ use clap::clap_app;
 
 use crate::ross_configurator::{RossConfiguratorError, DEFAULT_BAUDRATE};
 use crate::ross_serial::RossSerial;
-use crate::get_info::get_info;
+use crate::get_programmer::get_programmer;
 
 mod ross_configurator;
 mod ross_serial;
-mod get_info;
+mod get_programmer;
 
 fn main() -> Result<(), RossConfiguratorError> {
     let matches = clap_app!(ross_configurator =>
@@ -16,8 +16,8 @@ fn main() -> Result<(), RossConfiguratorError> {
         (about: env!("CARGO_PKG_DESCRIPTION"))
         (@arg DEVICE: -d --device +required +takes_value "Path of device to use")
         (@arg BAUDRATE: -b --baudrate +takes_value "Baudrate to use")
-        (@subcommand get_info => 
-            (about: "Gets connected programmer information")
+        (@subcommand get_programmer => 
+            (about: "Gets connected programmer's information")
         )
     ).get_matches();
 
@@ -48,8 +48,8 @@ fn main() -> Result<(), RossConfiguratorError> {
     };
 
     match matches.subcommand() {
-        ("get_info", _) => {
-            get_info(serial)
+        ("get_programmer", _) => {
+            get_programmer(serial)
         },
         (_, _) => {
             Ok(())

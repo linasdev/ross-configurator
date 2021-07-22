@@ -7,7 +7,7 @@ use ross_protocol::ross_event::ross_configurator_event::*;
 use crate::ross_configurator::*;
 use crate::ross_serial::RossSerial;
 
-pub fn get_info(mut serial: RossSerial) -> Result<(), RossConfiguratorError>  {
+pub fn get_programmer(mut serial: RossSerial) -> Result<(), RossConfiguratorError>  {
     let programmer_hello_event = send_configurator_hello_event(&mut serial)?;
 
     println!("Connected to programmer (address: {:#04x}, firmware_version: {:#04x})", programmer_hello_event.programmer_address, programmer_hello_event.programmer_address);
