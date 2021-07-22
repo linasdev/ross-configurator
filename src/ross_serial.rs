@@ -1,12 +1,13 @@
+use std::io::Error as IOError;
 use serialport::SerialPort;
 
 use ross_protocol::ross_frame::*;
 use ross_protocol::ross_packet::*;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug)]
 pub enum RossSerialError {
-    ReadError,
-    WriteError,
+    ReadError(IOError),
+    WriteError(IOError),
     BuilderError(RossPacketBuilderError),
     FrameError(RossFrameError),
 }
@@ -33,13 +34,13 @@ impl RossSerial {
                     if buf[0] == 0x00 {
                         let expected_length = match self.port.read_exact(&mut buf[..]) {
                             Ok(_) => buf[0],
-                            Err(_) => return Err(RossSerialError::ReadError),
+                            Err(err) => return Err(RossSerialError::ReadError(err)),
                         };
     
                         let mut frame = vec![0x00; expected_length as usize];
     
-                        if let Err(_) = self.port.read_exact(&mut frame[..]) {
-                            return Err(RossSerialError::ReadError);
+                        if let Err(err) = self.port.read_exact(&mut frame[..]) {
+                            return Err(RossSerialError::ReadError(err));
                         }
     
                         let ross_frame = match RossFrame::from_usart_frame(frame) {
@@ -74,7 +75,7 @@ impl RossSerial {
                         }
                     }
                 },
-                Err(_) => return Err(RossSerialError::ReadError),
+                Err(err) => return Err(RossSerialError::ReadError(err)),
             }
         }
     }
@@ -84,22 +85,22 @@ impl RossSerial {
             let frame_buf = frame.to_usart_frame();
     
             let buf = [0x00; 1];
-            if let Err(_) = self.port.write(&buf) {
-                return Err(RossSerialError::WriteError);
+            if let Err(err) = self.port.write(&buf) {
+                return Err(RossSerialError::WriteError(err));
             }
     
             let buf = [frame_buf.len() as u8; 1];
-            if let Err(_) = self.port.write(&buf) {
-                return Err(RossSerialError::WriteError);
+            if let Err(err) = self.port.write(&buf) {
+                return Err(RossSerialError::WriteError(err));
             }
     
-            if let Err(_) = self.port.write(&frame_buf) {
-                return Err(RossSerialError::WriteError);
+            if let Err(err) = self.port.write(&frame_buf) {
+                return Err(RossSerialError::WriteError(err));
             }
-        };
-    
-        if let Err(_) = self.port.flush() {
-            Err(RossSerialError::WriteError)
+        }
+
+        if let Err(err) = self.port.flush() {
+            Err(RossSerialError::WriteError(err))
         } else {
             Ok(())
         }
