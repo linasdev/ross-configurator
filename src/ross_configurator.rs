@@ -4,6 +4,7 @@ use crate::ross_serial::RossSerialError;
 
 pub const PACKET_TIMEOUT_MS: u128 = 500;
 pub const DEFAULT_BAUDRATE: u32 = 9_600;
+pub const DATA_PACKET_SIZE: usize = 128;
 
 #[derive(Debug)]
 pub enum RossConfiguratorError {

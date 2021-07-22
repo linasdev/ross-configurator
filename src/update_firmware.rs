@@ -32,6 +32,27 @@ pub fn update_firmware(serial: &mut RossSerial, firmware: &str, version: u32, ad
 
             send_programmer_start_upload_event(serial, device.programmer_address, address, version, buf.len() as u32)?;
 
+            let packet_count = (buf.len() - 1) / DATA_PACKET_SIZE + 1;
+
+            for i in 0..packet_count {
+                let slice_start = i * DATA_PACKET_SIZE;
+                let slice_offset = if i == packet_count - 1 {
+                    if buf.len() % DATA_PACKET_SIZE == 0 {
+                        DATA_PACKET_SIZE
+                    } else {
+                        buf.len() % DATA_PACKET_SIZE
+                    }
+                } else {
+                    DATA_PACKET_SIZE
+                };
+
+                println!("Sending bytes {} - {}", slice_start, slice_start + slice_offset);
+
+                let data = &buf[slice_start..slice_start + slice_offset];
+
+                send_data_event(serial, device.programmer_address, device.device_address, data)?;
+            }
+
             return Ok(())
         }
     }
@@ -49,6 +70,44 @@ fn send_programmer_start_upload_event(serial: &mut RossSerial, programmer_addres
         };
 
         let packet = programmer_start_upload_event.to_packet();
+
+        if let Err(err) = serial.try_send_packet(&packet) {
+            return Err(RossConfiguratorError::SerialError(err));
+        }
+
+        let now = SystemTime::now();
+
+        loop {
+            if let Ok(packet) = serial.try_get_packet() {
+                match RossAckEvent::try_from_packet(&packet) {
+                    Ok(event) => {
+                        if event.transmitter_address == programmer_address {
+                            return Ok(());
+                        }
+                    },
+                    Err(err) => {
+                        println!("Failed to parse `ack_event` ({:?}).", err);
+                    }
+                }
+            }
+
+            if now.elapsed().unwrap().as_millis() > PACKET_TIMEOUT_MS {
+                break;
+            }
+        }       
+    }
+}
+
+fn send_data_event(serial: &mut RossSerial, programmer_address: u16, device_address: u16, data: &[u8]) -> Result<(), RossConfiguratorError> {   
+    loop {
+        let data_event = RossDataEvent {
+            transmitter_address: programmer_address,
+            receiver_address: device_address,
+            data_len: data.len() as u16,
+            data: data.to_vec(),
+        };
+
+        let packet = data_event.to_packet();
 
         if let Err(err) = serial.try_send_packet(&packet) {
             return Err(RossConfiguratorError::SerialError(err));
