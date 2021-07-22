@@ -3,10 +3,12 @@ use clap::clap_app;
 use crate::ross_configurator::{RossConfiguratorError, DEFAULT_BAUDRATE};
 use crate::ross_serial::RossSerial;
 use crate::get_programmer::get_programmer;
+use crate::get_devices::get_devices;
 
 mod ross_configurator;
 mod ross_serial;
 mod get_programmer;
+mod get_devices;
 
 fn main() -> Result<(), RossConfiguratorError> {
     let matches = clap_app!(ross_configurator =>
@@ -18,6 +20,9 @@ fn main() -> Result<(), RossConfiguratorError> {
         (@arg BAUDRATE: -b --baudrate +takes_value "Baudrate to use")
         (@subcommand get_programmer => 
             (about: "Gets connected programmer's information")
+        )
+        (@subcommand get_devices =>
+            (about: "Gets connected devices' information")
         )
     ).get_matches();
 
@@ -35,7 +40,7 @@ fn main() -> Result<(), RossConfiguratorError> {
         None => DEFAULT_BAUDRATE,
     };    
     
-    let serial = {        
+    let mut serial = {        
         let port = match serialport::new(device, baudrate).open() {
             Ok(port) => port,
             Err(err) => {
@@ -49,8 +54,13 @@ fn main() -> Result<(), RossConfiguratorError> {
 
     match matches.subcommand() {
         ("get_programmer", _) => {
-            get_programmer(serial)
+            get_programmer(&mut serial)?;
+            Ok(())
         },
+        ("get_devices", _) => {
+            get_devices(&mut serial)?;
+            Ok(())
+        }
         (_, _) => {
             Ok(())
         },
