@@ -1,3 +1,4 @@
+use std::time::Duration;
 use clap::clap_app;
 use parse_int::parse;
 
@@ -50,7 +51,9 @@ fn main() -> Result<(), RossConfiguratorError> {
     };    
     
     let mut serial = {        
-        let port = match serialport::new(device, baudrate).open() {
+        let port = match serialport::new(device, baudrate)
+            .timeout(Duration::from_secs(2))
+            .open() {
             Ok(port) => port,
             Err(err) => {
                 eprintln!("Failed to open device.");
