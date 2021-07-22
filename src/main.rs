@@ -1,4 +1,5 @@
 use clap::clap_app;
+use parse_int::parse;
 
 use crate::ross_configurator::{RossConfiguratorError, DEFAULT_BAUDRATE};
 use crate::ross_serial::RossSerial;
@@ -29,7 +30,7 @@ fn main() -> Result<(), RossConfiguratorError> {
     let device = matches.value_of("DEVICE").unwrap();
     let baudrate = match matches.value_of("BAUDRATE") {
         Some(baudrate_str) => {
-            match baudrate_str.parse::<u32>() {
+            match parse::<u32>(baudrate_str) {
                 Ok(baudrate) => baudrate,
                 Err(_) => {
                     eprintln!("BAUDRATE is not a number.");
