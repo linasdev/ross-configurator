@@ -8,14 +8,16 @@ use crate::ross_configurator::*;
 use crate::ross_serial::RossSerial;
 use crate::get_programmer::get_programmer;
 
-pub fn get_devices(serial: &mut RossSerial) -> Result<(), RossConfiguratorError>  {
+pub fn get_devices(serial: &mut RossSerial) -> Result<Vec<RossBootloaderHelloEvent>, RossConfiguratorError>  {
     let programmer_hello_event = get_programmer(serial)?;
 
-    for bootloader_hello_event in send_programmer_hello_event(serial, &programmer_hello_event)?.iter() {
+    let devices = send_programmer_hello_event(serial, &programmer_hello_event)?;
+
+    for bootloader_hello_event in devices.iter() {
         println!("Found device (address: {:#06x}, firmware_version: {:#010x})", bootloader_hello_event.device_address, bootloader_hello_event.firmware_version);
     }
 
-    Ok(())
+    Ok(devices)
 }
 
 fn send_programmer_hello_event(serial: &mut RossSerial, programmer_hello_event: &RossProgrammerHelloEvent) -> Result<Vec<RossBootloaderHelloEvent>, RossConfiguratorError> {   
