@@ -1,9 +1,11 @@
 use clap::clap_app;
 
 use crate::ross_configurator::{RossConfiguratorError, DEFAULT_BAUDRATE};
+use crate::ross_serial::RossSerial;
 use crate::get_info::get_info;
 
 mod ross_configurator;
+mod ross_serial;
 mod get_info;
 
 fn main() -> Result<(), RossConfiguratorError> {
@@ -31,11 +33,23 @@ fn main() -> Result<(), RossConfiguratorError> {
             }
         },
         None => DEFAULT_BAUDRATE,
+    };    
+    
+    let serial = {        
+        let port = match serialport::new(device, baudrate).open() {
+            Ok(port) => port,
+            Err(err) => {
+                eprintln!("Failed to open device.");
+                return Err(RossConfiguratorError::FailedToOpenDevice(err));
+            }
+        };
+
+        RossSerial::new(port)
     };
 
     match matches.subcommand() {
         ("get_info", _) => {
-            get_info(device, baudrate)
+            get_info(serial)
         },
         (_, _) => {
             Ok(())
