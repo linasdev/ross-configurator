@@ -12,7 +12,7 @@ pub fn get_devices(serial: &mut RossSerial) -> Result<(), RossConfiguratorError>
     let programmer_hello_event = get_programmer(serial)?;
 
     for bootloader_hello_event in send_programmer_hello_event(serial, &programmer_hello_event)?.iter() {
-        println!("Found device (address: {:#04x}, firmware_version: {:#04x})", bootloader_hello_event.device_address, bootloader_hello_event.firmware_version);
+        println!("Found device (address: {:#06x}, firmware_version: {:#010x})", bootloader_hello_event.device_address, bootloader_hello_event.firmware_version);
     }
 
     Ok(())

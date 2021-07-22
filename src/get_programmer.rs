@@ -10,7 +10,7 @@ use crate::ross_serial::RossSerial;
 pub fn get_programmer(serial: &mut RossSerial) -> Result<RossProgrammerHelloEvent, RossConfiguratorError>  {
     let programmer_hello_event = send_configurator_hello_event(serial)?;
 
-    println!("Found programmer (address: {:#04x}, firmware_version: {:#04x})", programmer_hello_event.programmer_address, programmer_hello_event.firmware_version);
+    println!("Found programmer (address: {:#06x}, firmware_version: {:#010x})", programmer_hello_event.programmer_address, programmer_hello_event.firmware_version);
 
     Ok(programmer_hello_event)
 }
