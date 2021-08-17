@@ -94,11 +94,15 @@ fn send_programmer_start_upload_event(serial: &mut RossSerial, programmer_addres
             if now.elapsed().unwrap().as_millis() > PACKET_TIMEOUT_MS {
                 break;
             }
-        }       
+        }
+        
+        if now.elapsed().unwrap().as_millis() > TRANSACTION_TIMEOUT_MS {
+            return Err(RossConfiguratorError::TransactionTimedOut);
+        }    
     }
 }
 
-fn send_data_event(serial: &mut RossSerial, programmer_address: u16, device_address: u16, data: &[u8]) -> Result<(), RossConfiguratorError> {   
+fn send_data_event(serial: &mut RossSerial, programmer_address: u16, device_address: u16, data: &[u8]) -> Result<(), RossConfiguratorError> {
     loop {
         let data_event = RossDataEvent {
             transmitter_address: programmer_address,
@@ -132,6 +136,10 @@ fn send_data_event(serial: &mut RossSerial, programmer_address: u16, device_addr
             if now.elapsed().unwrap().as_millis() > PACKET_TIMEOUT_MS {
                 break;
             }
-        }       
+        }
+        
+        if now.elapsed().unwrap().as_millis() > TRANSACTION_TIMEOUT_MS {
+            return Err(RossConfiguratorError::TransactionTimedOut);
+        }
     }
 }

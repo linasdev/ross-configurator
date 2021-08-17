@@ -45,6 +45,10 @@ fn send_programmer_hello_event(serial: &mut RossSerial, programmer_hello_event: 
             if now.elapsed().unwrap().as_millis() > PACKET_TIMEOUT_MS {
                 break;
             }
-        }       
+        }
+        
+        if now.elapsed().unwrap().as_millis() > TRANSACTION_TIMEOUT_MS {
+            return Err(RossConfiguratorError::TransactionTimedOut);
+        }    
     }
 }
