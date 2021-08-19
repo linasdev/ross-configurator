@@ -2,14 +2,14 @@ use std::time::Duration;
 use clap::clap_app;
 use parse_int::parse;
 
+use ross_protocol::ross_interface::ross_serial::RossSerial;
+
 use crate::ross_configurator::{RossConfiguratorError, DEFAULT_BAUDRATE};
-use crate::ross_serial::RossSerial;
 use crate::get_programmer::get_programmer;
 use crate::get_devices::get_devices;
 use crate::update_firmware::update_firmware;
 
 mod ross_configurator;
-mod ross_serial;
 mod get_programmer;
 mod get_devices;
 mod update_firmware;
