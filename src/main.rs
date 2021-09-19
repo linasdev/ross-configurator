@@ -2,8 +2,8 @@ use std::time::Duration;
 use clap::clap_app;
 use parse_int::parse;
 
-use ross_protocol::ross_protocol::{RossProtocol, BROADCAST_ADDRESS};
-use ross_protocol::ross_interface::ross_serial::RossSerial;
+use ross_protocol::protocol::{Protocol, BROADCAST_ADDRESS};
+use ross_protocol::interface::serial::Serial;
 
 use crate::ross_configurator::*;
 use crate::get_programmer::get_programmer;
@@ -15,7 +15,7 @@ mod get_programmer;
 mod get_devices;
 mod update_firmware;
 
-fn main() -> Result<(), RossConfiguratorError> {
+fn main() -> Result<(), ConfiguratorError> {
     let matches = clap_app!(ross_configurator =>
         (@setting SubcommandRequiredElseHelp)
         (version: env!("CARGO_PKG_VERSION"))
@@ -44,7 +44,7 @@ fn main() -> Result<(), RossConfiguratorError> {
                 Ok(baudrate) => baudrate,
                 Err(_) => {
                     eprintln!("BAUDRATE is not a number.");
-                    return Err(RossConfiguratorError::BadUsage);
+                    return Err(ConfiguratorError::BadUsage);
                 }
             }
         },
@@ -58,12 +58,12 @@ fn main() -> Result<(), RossConfiguratorError> {
             Ok(port) => port,
             Err(err) => {
                 eprintln!("Failed to open device.");
-                return Err(RossConfiguratorError::FailedToOpenDevice(err));
+                return Err(ConfiguratorError::FailedToOpenDevice(err));
             }
         };
 
-        let serial = RossSerial::new(port);
-        RossProtocol::new(BROADCAST_ADDRESS, serial)
+        let serial = Serial::new(port);
+        Protocol::new(BROADCAST_ADDRESS, serial)
     };
 
     match matches.subcommand() {
@@ -83,14 +83,14 @@ fn main() -> Result<(), RossConfiguratorError> {
                 Ok(version) => version,
                 Err(_) => {
                     eprintln!("VERSION is not a number.");
-                    return Err(RossConfiguratorError::BadUsage);
+                    return Err(ConfiguratorError::BadUsage);
                 }
             };
             let address = match parse::<u16>(sub_matches.value_of("ADDRESS").unwrap()) {
                 Ok(address) => address,
                 Err(_) => {
                     eprintln!("ADDRESS is not a number.");
-                    return Err(RossConfiguratorError::BadUsage);
+                    return Err(ConfiguratorError::BadUsage);
                 }
             };
 

@@ -3,17 +3,17 @@ use std::time::Duration;
 use std::fs::File;
 use std::io::Read;
 
-use ross_protocol::ross_protocol::RossProtocol;
-use ross_protocol::ross_interface::ross_serial::RossSerial;
-use ross_protocol::ross_convert_packet::RossConvertPacket;
-use ross_protocol::ross_event::ross_programmer_event::*;
-use ross_protocol::ross_event::ross_general_event::*;
+use ross_protocol::protocol::Protocol;
+use ross_protocol::interface::serial::Serial;
+use ross_protocol::convert_packet::ConvertPacket;
+use ross_protocol::event::programmer_event::*;
+use ross_protocol::event::general_event::*;
 
 use crate::ross_configurator::*;
 use crate::get_programmer::get_programmer;
 use crate::get_devices::get_devices;
 
-pub fn update_firmware(protocol: &mut RossProtocol<RossSerial>, firmware: &str, version: u32, address: u16) -> Result<(), RossConfiguratorError>  {
+pub fn update_firmware(protocol: &mut Protocol<Serial>, firmware: &str, version: u32, address: u16) -> Result<(), ConfiguratorError>  {
     let programmer = get_programmer(protocol)?;
     let devices = get_devices(protocol)?;
 
@@ -22,30 +22,30 @@ pub fn update_firmware(protocol: &mut RossProtocol<RossSerial>, firmware: &str, 
             let mut file = match File::open(firmware) {
                 Ok(file) => file,
                 Err(err) => {
-                    return Err(RossConfiguratorError::IOError(err));
+                    return Err(ConfiguratorError::IOError(err));
                 }
             };
 
             let mut buf = vec!();
 
             if let Err(err) = file.read_to_end(&mut buf) {
-                return Err(RossConfiguratorError::IOError(err));
+                return Err(ConfiguratorError::IOError(err));
             }
 
             println!("Updating device's firmware (address: {:#06x}, old_firmware_version: {:#010x}, new_firmware_version: {:#010x}, firmware_size: {:#010x}).", address, device.firmware_version, version, buf.len());
 
-            let programmer_start_upload_event = RossProgrammerStartUploadEvent {
+            let programmer_start_upload_event = ProgrammerStartUploadEvent {
                 programmer_address: programmer.programmer_address,
                 receiver_address: device.bootloader_address,
                 new_firmware_version: version,
                 firmware_size: buf.len() as u32,
             };
 
-            let _: RossAckEvent = match protocol.exchange_packet(programmer_start_upload_event.to_packet(), false, TRANSACTION_RETRY_COUNT as u32, || {
+            let _: AckEvent = match protocol.exchange_packet(programmer_start_upload_event.to_packet(), false, TRANSACTION_RETRY_COUNT as u32, || {
                 sleep(Duration::from_millis(PACKET_TIMEOUT_MS))
             }) {
                 Ok(event) => event,
-                Err(err) => return Err(RossConfiguratorError::ProtocolError(err)),
+                Err(err) => return Err(ConfiguratorError::ProtocolError(err)),
             };
 
             let packet_count = (buf.len() - 1) / DATA_PACKET_SIZE + 1;
@@ -66,18 +66,18 @@ pub fn update_firmware(protocol: &mut RossProtocol<RossSerial>, firmware: &str, 
 
                 let data = &buf[slice_start..slice_start + slice_offset];
 
-                let data_event = RossDataEvent {
+                let data_event = DataEvent {
                     transmitter_address: programmer.programmer_address,
                     receiver_address: device.bootloader_address,
                     data_len: data.len() as u16,
                     data: data.to_vec(),
                 };
 
-                let _: RossAckEvent = match protocol.exchange_packet(data_event.to_packet(), false, TRANSACTION_RETRY_COUNT as u32, || {
+                let _: AckEvent = match protocol.exchange_packet(data_event.to_packet(), false, TRANSACTION_RETRY_COUNT as u32, || {
                     sleep(Duration::from_millis(PACKET_TIMEOUT_MS))
                 }) {
                     Ok(event) => event,
-                    Err(err) => return Err(RossConfiguratorError::ProtocolError(err)),
+                    Err(err) => return Err(ConfiguratorError::ProtocolError(err)),
                 };
             }
 
@@ -85,5 +85,5 @@ pub fn update_firmware(protocol: &mut RossProtocol<RossSerial>, firmware: &str, 
         }
     }
 
-    Err(RossConfiguratorError::DeviceNotFound)
+    Err(ConfiguratorError::DeviceNotFound)
 }

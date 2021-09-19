@@ -1,22 +1,22 @@
 use std::thread::sleep;
 use std::time::Duration;
 
-use ross_protocol::ross_protocol::RossProtocol;
-use ross_protocol::ross_interface::ross_serial::RossSerial;
-use ross_protocol::ross_convert_packet::RossConvertPacket;
-use ross_protocol::ross_event::ross_programmer_event::*;
-use ross_protocol::ross_event::ross_configurator_event::*;
+use ross_protocol::protocol::Protocol;
+use ross_protocol::interface::serial::Serial;
+use ross_protocol::convert_packet::ConvertPacket;
+use ross_protocol::event::programmer_event::*;
+use ross_protocol::event::configurator_event::*;
 
 use crate::ross_configurator::*;
 
-pub fn get_programmer(protocol: &mut RossProtocol<RossSerial>) -> Result<RossProgrammerHelloEvent, RossConfiguratorError>  {
-    let configurator_hello_event = RossConfiguratorHelloEvent {};
+pub fn get_programmer(protocol: &mut Protocol<Serial>) -> Result<ProgrammerHelloEvent, ConfiguratorError>  {
+    let configurator_hello_event = ConfiguratorHelloEvent {};
 
-    let programmer_hello_event: RossProgrammerHelloEvent = match protocol.exchange_packet(configurator_hello_event.to_packet(), false, TRANSACTION_RETRY_COUNT as u32, || {
+    let programmer_hello_event: ProgrammerHelloEvent = match protocol.exchange_packet(configurator_hello_event.to_packet(), false, TRANSACTION_RETRY_COUNT as u32, || {
         sleep(Duration::from_millis(PACKET_TIMEOUT_MS))
     }) {
         Ok(event) => event,
-        Err(err) => return Err(RossConfiguratorError::ProtocolError(err)),
+        Err(err) => return Err(ConfiguratorError::ProtocolError(err)),
     };
 
     println!("Found programmer (address: {:#06x}, firmware_version: {:#010x})", programmer_hello_event.programmer_address, programmer_hello_event.firmware_version);
