@@ -1,5 +1,5 @@
 use std::time::Duration;
-use clap::clap_app;
+use clap::{clap_app, value_t};
 use parse_int::parse;
 
 use ross_protocol::protocol::{Protocol, BROADCAST_ADDRESS};
@@ -9,11 +9,15 @@ use crate::ross_configurator::*;
 use crate::get_programmer::get_programmer;
 use crate::get_devices::get_devices;
 use crate::update_firmware::update_firmware;
+use crate::send_event::send_event;
+use crate::event_type::EventType;
 
 mod ross_configurator;
 mod get_programmer;
 mod get_devices;
 mod update_firmware;
+mod send_event;
+mod event_type;
 
 fn main() -> Result<(), ConfiguratorError> {
     let matches = clap_app!(ross_configurator =>
@@ -34,6 +38,11 @@ fn main() -> Result<(), ConfiguratorError> {
             (@arg FIRMWARE: -f --firmware +required +takes_value "Path of the firmware to use")
             (@arg VERSION: -v --version +required +takes_value "New firmware's version")
             (@arg ADDRESS: -a --address +required +takes_value "Recipient device address")
+        )
+        (@subcommand send_event =>
+            (about: "Sends a single event")
+            (@arg EVENT: -e --event +required +takes_value "Type of the event")
+            (@arg DATA: -d --data ... +required +takes_value "Data of the event")
         )
     ).get_matches();
 
@@ -95,6 +104,16 @@ fn main() -> Result<(), ConfiguratorError> {
             };
 
             update_firmware(&mut protocol, firmware, version, address)?;
+
+            Ok(())
+        },
+        ("send_event", sub_matches) => {
+            let sub_matches = sub_matches.unwrap();
+
+            let event = value_t!(sub_matches, "EVENT", EventType).unwrap_or_else(|e| e.exit());
+            let data = sub_matches.values_of("DATA").unwrap().collect();
+
+            send_event(&mut protocol, event, data)?;
 
             Ok(())
         },
