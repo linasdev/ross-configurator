@@ -2,9 +2,10 @@ use std::time::Duration;
 use clap::clap_app;
 use parse_int::parse;
 
+use ross_protocol::ross_protocol::{RossProtocol, BROADCAST_ADDRESS};
 use ross_protocol::ross_interface::ross_serial::RossSerial;
 
-use crate::ross_configurator::{RossConfiguratorError, DEFAULT_BAUDRATE};
+use crate::ross_configurator::*;
 use crate::get_programmer::get_programmer;
 use crate::get_devices::get_devices;
 use crate::update_firmware::update_firmware;
@@ -39,7 +40,7 @@ fn main() -> Result<(), RossConfiguratorError> {
     let device = matches.value_of("DEVICE").unwrap();
     let baudrate = match matches.value_of("BAUDRATE") {
         Some(baudrate_str) => {
-            match parse::<u32>(baudrate_str) {
+            match parse::<u64>(baudrate_str) {
                 Ok(baudrate) => baudrate,
                 Err(_) => {
                     eprintln!("BAUDRATE is not a number.");
@@ -50,9 +51,9 @@ fn main() -> Result<(), RossConfiguratorError> {
         None => DEFAULT_BAUDRATE,
     };    
     
-    let mut serial = {        
-        let port = match serialport::new(device, baudrate)
-            .timeout(Duration::from_secs(2))
+    let mut protocol = {        
+        let port = match serialport::new(device, baudrate as u32)
+            .timeout(Duration::from_millis(TRANSACTION_RETRY_COUNT * PACKET_TIMEOUT_MS * 1000))
             .open() {
             Ok(port) => port,
             Err(err) => {
@@ -61,16 +62,17 @@ fn main() -> Result<(), RossConfiguratorError> {
             }
         };
 
-        RossSerial::new(port)
+        let serial = RossSerial::new(port);
+        RossProtocol::new(BROADCAST_ADDRESS, serial)
     };
 
     match matches.subcommand() {
         ("get_programmer", _) => {
-            get_programmer(&mut serial)?;
+            get_programmer(&mut protocol)?;
             Ok(())
         },
         ("get_devices", _) => {
-            get_devices(&mut serial)?;
+            get_devices(&mut protocol)?;
             Ok(())
         },
         ("update_firmware", sub_matches) => {
@@ -92,7 +94,7 @@ fn main() -> Result<(), RossConfiguratorError> {
                 }
             };
 
-            update_firmware(&mut serial, firmware, version, address)?;
+            update_firmware(&mut protocol, firmware, version, address)?;
 
             Ok(())
         },

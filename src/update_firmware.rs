@@ -1,9 +1,10 @@
-use std::time::SystemTime;
+use std::thread::sleep;
+use std::time::Duration;
 use std::fs::File;
 use std::io::Read;
 
+use ross_protocol::ross_protocol::RossProtocol;
 use ross_protocol::ross_interface::ross_serial::RossSerial;
-use ross_protocol::ross_interface::RossInterface;
 use ross_protocol::ross_convert_packet::RossConvertPacket;
 use ross_protocol::ross_event::ross_programmer_event::*;
 use ross_protocol::ross_event::ross_general_event::*;
@@ -12,9 +13,9 @@ use crate::ross_configurator::*;
 use crate::get_programmer::get_programmer;
 use crate::get_devices::get_devices;
 
-pub fn update_firmware(serial: &mut RossSerial, firmware: &str, version: u32, address: u16) -> Result<(), RossConfiguratorError>  {
-    let programmer = get_programmer(serial)?;
-    let devices = get_devices(serial)?;
+pub fn update_firmware(protocol: &mut RossProtocol<RossSerial>, firmware: &str, version: u32, address: u16) -> Result<(), RossConfiguratorError>  {
+    let programmer = get_programmer(protocol)?;
+    let devices = get_devices(protocol)?;
 
     for device in devices.iter() {
         if device.bootloader_address == address {
@@ -33,7 +34,19 @@ pub fn update_firmware(serial: &mut RossSerial, firmware: &str, version: u32, ad
 
             println!("Updating device's firmware (address: {:#06x}, old_firmware_version: {:#010x}, new_firmware_version: {:#010x}, firmware_size: {:#010x}).", address, device.firmware_version, version, buf.len());
 
-            send_programmer_start_upload_event(serial, programmer.programmer_address, address, version, buf.len() as u32)?;
+            let programmer_start_upload_event = RossProgrammerStartUploadEvent {
+                programmer_address: programmer.programmer_address,
+                receiver_address: device.bootloader_address,
+                new_firmware_version: version,
+                firmware_size: buf.len() as u32,
+            };
+
+            let _: RossAckEvent = match protocol.exchange_packet(programmer_start_upload_event.to_packet(), false, TRANSACTION_RETRY_COUNT as u32, || {
+                sleep(Duration::from_millis(PACKET_TIMEOUT_MS))
+            }) {
+                Ok(event) => event,
+                Err(err) => return Err(RossConfiguratorError::ProtocolError(err)),
+            };
 
             let packet_count = (buf.len() - 1) / DATA_PACKET_SIZE + 1;
 
@@ -53,7 +66,19 @@ pub fn update_firmware(serial: &mut RossSerial, firmware: &str, version: u32, ad
 
                 let data = &buf[slice_start..slice_start + slice_offset];
 
-                send_data_event(serial, programmer.programmer_address, device.bootloader_address, data)?;
+                let data_event = RossDataEvent {
+                    transmitter_address: programmer.programmer_address,
+                    receiver_address: device.bootloader_address,
+                    data_len: data.len() as u16,
+                    data: data.to_vec(),
+                };
+
+                let _: RossAckEvent = match protocol.exchange_packet(data_event.to_packet(), false, TRANSACTION_RETRY_COUNT as u32, || {
+                    sleep(Duration::from_millis(PACKET_TIMEOUT_MS))
+                }) {
+                    Ok(event) => event,
+                    Err(err) => return Err(RossConfiguratorError::ProtocolError(err)),
+                };
             }
 
             return Ok(())
@@ -61,88 +86,4 @@ pub fn update_firmware(serial: &mut RossSerial, firmware: &str, version: u32, ad
     }
 
     Err(RossConfiguratorError::DeviceNotFound)
-}
-
-fn send_programmer_start_upload_event(serial: &mut RossSerial, programmer_address: u16, receiver_address: u16, new_firmware_version: u32, firmware_size: u32) -> Result<(), RossConfiguratorError> {   
-    loop {
-        let programmer_start_upload_event = RossProgrammerStartUploadEvent {
-            programmer_address,
-            receiver_address,
-            new_firmware_version,
-            firmware_size,
-        };
-
-        let packet = programmer_start_upload_event.to_packet();
-
-        if let Err(err) = serial.try_send_packet(&packet) {
-            return Err(RossConfiguratorError::InterfaceError(err));
-        }
-
-        let now = SystemTime::now();
-
-        loop {
-            if let Ok(packet) = serial.try_get_packet() {
-                match RossAckEvent::try_from_packet(&packet) {
-                    Ok(event) => {
-                        if event.transmitter_address == receiver_address {
-                            return Ok(());
-                        }
-                    },
-                    Err(err) => {
-                        println!("Failed to parse `ack_event` ({:?}).", err);
-                    }
-                }
-            }
-
-            if now.elapsed().unwrap().as_millis() > PACKET_TIMEOUT_MS {
-                break;
-            }
-        }
-        
-        if now.elapsed().unwrap().as_millis() > TRANSACTION_TIMEOUT_MS {
-            return Err(RossConfiguratorError::TransactionTimedOut);
-        }    
-    }
-}
-
-fn send_data_event(serial: &mut RossSerial, programmer_address: u16, receiver_address: u16, data: &[u8]) -> Result<(), RossConfiguratorError> {
-    loop {
-        let data_event = RossDataEvent {
-            transmitter_address: programmer_address,
-            receiver_address,
-            data_len: data.len() as u16,
-            data: data.to_vec(),
-        };
-
-        let packet = data_event.to_packet();
-
-        if let Err(err) = serial.try_send_packet(&packet) {
-            return Err(RossConfiguratorError::InterfaceError(err));
-        }
-
-        let now = SystemTime::now();
-
-        loop {
-            if let Ok(packet) = serial.try_get_packet() {
-                match RossAckEvent::try_from_packet(&packet) {
-                    Ok(event) => {
-                        if event.transmitter_address == receiver_address {
-                            return Ok(());
-                        }
-                    },
-                    Err(err) => {
-                        println!("Failed to parse `ack_event` ({:?}).", err);
-                    }
-                }
-            }
-
-            if now.elapsed().unwrap().as_millis() > PACKET_TIMEOUT_MS {
-                break;
-            }
-        }
-        
-        if now.elapsed().unwrap().as_millis() > TRANSACTION_TIMEOUT_MS {
-            return Err(RossConfiguratorError::TransactionTimedOut);
-        }
-    }
 }
