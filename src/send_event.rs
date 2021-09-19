@@ -83,11 +83,13 @@ pub fn send_event(protocol: &mut Protocol<Serial>, event: EventType, data: Vec<&
 
         BcmChangeBrightness => {
             let bcm_address = parse_u16(data[0], "bcm_address")?;
-            let channel = parse_u8(data[1], "channel")?;
-            let brightness = parse_u8(data[2], "brightness")?;
+            let transmitter_address = parse_u16(data[1], "transmitter_address")?;
+            let channel = parse_u8(data[2], "channel")?;
+            let brightness = parse_u8(data[3], "brightness")?;
 
             BcmChangeBrightnessEvent {
                 bcm_address,
+                transmitter_address,
                 channel,
                 brightness,
             }.to_packet()
