@@ -36,8 +36,7 @@ pub fn upgrade_config(protocol: &mut Protocol<Serial>, config: &str, address: u1
             let config = Parser::parse(&source_code).map_err(|err| ConfiguratorError::ParserError(err))?;
             let config_data = ConfigSerializer::serialize(&config).map_err(|err| ConfiguratorError::ConfigSerializerError(err))?;
 
-            println!("{:?}", config_data);
-            println!("Updating device's firmware (address: {:#06x}, firmware_size: {:#010x}).", address, buf.len());
+            println!("Updating device's config (address: {:#06x}, config_size: {:#010x}).", address, config_data.len());
 
             let programmer_start_config_upgrade_event = ProgrammerStartConfigUpgradeEvent {
                 programmer_address: programmer.programmer_address,
