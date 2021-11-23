@@ -10,6 +10,7 @@ use crate::get_programmer::get_programmer;
 use crate::get_devices::get_devices;
 use crate::upgrade_firmware::upgrade_firmware;
 use crate::upgrade_config::upgrade_config;
+use crate::set_device_address::set_device_address;
 use crate::send_event::send_event;
 use crate::event_type::EventType;
 
@@ -18,6 +19,7 @@ mod get_programmer;
 mod get_devices;
 mod upgrade_firmware;
 mod upgrade_config;
+mod set_device_address;
 mod send_event;
 mod event_type;
 
@@ -43,6 +45,11 @@ fn main() -> Result<(), ConfiguratorError> {
         (@subcommand upgrade_config =>
             (about: "Upgrades a specific device's config")
             (@arg CONFIG: -c --config +required +takes_value "Path of the config to use")
+            (@arg ADDRESS: -a --address +required +takes_value "Recipient device address")
+        )
+        (@subcommand set_device_address =>
+            (about: "Sets a specific device's address")
+            (@arg NEW_ADDRESS: -n --new-address +required +takes_value "New device address")
             (@arg ADDRESS: -a --address +required +takes_value "Recipient device address")
         )
         (@subcommand send_event =>
@@ -124,6 +131,31 @@ fn main() -> Result<(), ConfiguratorError> {
             let devices = get_devices(&mut protocol, &programmer)?;
 
             upgrade_config(&mut protocol, &programmer, &devices, config, address)?;
+
+            Ok(())
+        },
+        ("set_device_address", sub_matches) => {
+            let sub_matches = sub_matches.unwrap();
+
+            let new_address = match parse::<u16>(sub_matches.value_of("NEW_ADDRESS").unwrap()) {
+                Ok(new_address) => new_address,
+                Err(_) => {
+                    eprintln!("NEW_ADDRESS is not a number.");
+                    return Err(ConfiguratorError::BadUsage);
+                }
+            };
+
+            let address = match parse::<u16>(sub_matches.value_of("ADDRESS").unwrap()) {
+                Ok(address) => address,
+                Err(_) => {
+                    eprintln!("ADDRESS is not a number.");
+                    return Err(ConfiguratorError::BadUsage);
+                }
+            };
+
+            let devices = get_devices(&mut protocol, &programmer)?;
+
+            set_device_address(&mut protocol, &programmer, &devices, new_address, address)?;
 
             Ok(())
         },
