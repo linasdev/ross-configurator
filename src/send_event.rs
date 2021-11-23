@@ -1,21 +1,25 @@
 use parse_int::parse;
 
-use ross_protocol::protocol::Protocol;
-use ross_protocol::interface::serial::Serial;
 use ross_protocol::convert_packet::ConvertPacket;
-use ross_protocol::event::general::*;
-use ross_protocol::event::bootloader::*;
-use ross_protocol::event::configurator::*;
-use ross_protocol::event::programmer::*;
-use ross_protocol::event::button::*;
-use ross_protocol::event::internal::*;
 use ross_protocol::event::bcm::*;
+use ross_protocol::event::bootloader::*;
+use ross_protocol::event::button::*;
+use ross_protocol::event::configurator::*;
+use ross_protocol::event::general::*;
+use ross_protocol::event::internal::*;
+use ross_protocol::event::programmer::*;
+use ross_protocol::interface::serial::Serial;
+use ross_protocol::protocol::Protocol;
 
-use crate::ross_configurator::*;
 use crate::event_type::EventType;
 use crate::event_type::EventType::*;
+use crate::ross_configurator::*;
 
-pub fn send_event(protocol: &mut Protocol<Serial>, event: EventType, data: Vec<&str>) -> Result<(), ConfiguratorError>  {
+pub fn send_event(
+    protocol: &mut Protocol<Serial>,
+    event: EventType,
+    data: Vec<&str>,
+) -> Result<(), ConfiguratorError> {
     let packet = match event {
         Ack => {
             let receiver_address = parse_u16(data[0], "receiver_address")?;
@@ -24,8 +28,9 @@ pub fn send_event(protocol: &mut Protocol<Serial>, event: EventType, data: Vec<&
             AckEvent {
                 receiver_address,
                 transmitter_address,
-            }.to_packet()
-        },
+            }
+            .to_packet()
+        }
         Data => {
             let receiver_address = parse_u16(data[0], "receiver_address")?;
             let transmitter_address = parse_u16(data[1], "transmitter_address")?;
@@ -36,7 +41,7 @@ pub fn send_event(protocol: &mut Protocol<Serial>, event: EventType, data: Vec<&
                 return Err(ConfiguratorError::BadUsage);
             }
 
-            let mut bytes = vec!();
+            let mut bytes = vec![];
 
             for byte_string in data[3..data.len()].iter() {
                 let byte = parse_u8(byte_string, "byte")?;
@@ -48,12 +53,11 @@ pub fn send_event(protocol: &mut Protocol<Serial>, event: EventType, data: Vec<&
                 transmitter_address,
                 data_len,
                 data: bytes,
-            }.to_packet()
-        },
+            }
+            .to_packet()
+        }
 
-        ConfiguratorHello => {
-            ConfiguratorHelloEvent {}.to_packet()
-        },
+        ConfiguratorHello => ConfiguratorHelloEvent {}.to_packet(),
 
         BootloaderHello => {
             let programmer_address = parse_u16(data[0], "programmer_address")?;
@@ -62,16 +66,15 @@ pub fn send_event(protocol: &mut Protocol<Serial>, event: EventType, data: Vec<&
             BootloaderHelloEvent {
                 programmer_address,
                 bootloader_address,
-            }.to_packet()
-        },
-        
+            }
+            .to_packet()
+        }
+
         ProgrammerHello => {
             let programmer_address = parse_u16(data[0], "programmer_address")?;
 
-            ProgrammerHelloEvent {
-                programmer_address,
-            }.to_packet()
-        },
+            ProgrammerHelloEvent { programmer_address }.to_packet()
+        }
         ProgrammerStartFirmwareUpgrade => {
             let receiver_address = parse_u16(data[0], "receiver_address")?;
             let programmer_address = parse_u16(data[0], "programmer_address")?;
@@ -81,8 +84,9 @@ pub fn send_event(protocol: &mut Protocol<Serial>, event: EventType, data: Vec<&
                 receiver_address,
                 programmer_address,
                 firmware_size,
-            }.to_packet()
-        },
+            }
+            .to_packet()
+        }
         ProgrammerStartConfigUpgrade => {
             let receiver_address = parse_u16(data[0], "receiver_address")?;
             let programmer_address = parse_u16(data[0], "programmer_address")?;
@@ -92,8 +96,9 @@ pub fn send_event(protocol: &mut Protocol<Serial>, event: EventType, data: Vec<&
                 receiver_address,
                 programmer_address,
                 config_size,
-            }.to_packet()
-        },
+            }
+            .to_packet()
+        }
 
         BcmChangeBrightness => {
             let bcm_address = parse_u16(data[0], "bcm_address")?;
@@ -106,8 +111,9 @@ pub fn send_event(protocol: &mut Protocol<Serial>, event: EventType, data: Vec<&
                 transmitter_address,
                 channel,
                 brightness,
-            }.to_packet()
-        },
+            }
+            .to_packet()
+        }
 
         ButtonPressed => {
             let receiver_address = parse_u16(data[0], "receiver_address")?;
@@ -118,8 +124,9 @@ pub fn send_event(protocol: &mut Protocol<Serial>, event: EventType, data: Vec<&
                 receiver_address,
                 button_address,
                 index,
-            }.to_packet()
-        },
+            }
+            .to_packet()
+        }
         ButtonReleased => {
             let receiver_address = parse_u16(data[0], "receiver_address")?;
             let button_address = parse_u16(data[1], "button_address")?;
@@ -129,27 +136,31 @@ pub fn send_event(protocol: &mut Protocol<Serial>, event: EventType, data: Vec<&
                 receiver_address,
                 button_address,
                 index,
-            }.to_packet()
-        },
+            }
+            .to_packet()
+        }
 
         SystemTick => {
             let receiver_address = parse_u16(data[0], "receiver_address")?;
 
-            SystemTickEvent {
-                receiver_address
-            }.to_packet()
+            SystemTickEvent { receiver_address }.to_packet()
         }
     };
 
-    protocol.add_packet_handler(Box::new(|packet, _can| {
-        println!("Received packet ({:?})", packet);
-    }), false).unwrap();
+    protocol
+        .add_packet_handler(
+            Box::new(|packet, _can| {
+                println!("Received packet ({:?})", packet);
+            }),
+            false,
+        )
+        .unwrap();
 
     match protocol.send_packet(&packet) {
         Ok(()) => {
             println!("Sent packet ({:?}).", packet);
             Ok(())
-        },
+        }
         Err(err) => Err(ConfiguratorError::ProtocolError(err)),
     }
 }

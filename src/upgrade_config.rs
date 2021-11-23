@@ -1,20 +1,26 @@
+use std::fs::File;
+use std::io::{BufReader, Read};
 use std::thread::sleep;
 use std::time::Duration;
-use std::fs::File;
-use std::io::{Read, BufReader};
 
-use ross_protocol::protocol::Protocol;
-use ross_protocol::interface::serial::Serial;
-use ross_protocol::convert_packet::ConvertPacket;
-use ross_protocol::event::programmer::*;
-use ross_protocol::event::general::*;
-use ross_protocol::event::bootloader::*;
-use ross_dsl::parser::Parser;
 use ross_config::config::ConfigSerializer;
+use ross_dsl::parser::Parser;
+use ross_protocol::convert_packet::ConvertPacket;
+use ross_protocol::event::bootloader::*;
+use ross_protocol::event::general::*;
+use ross_protocol::event::programmer::*;
+use ross_protocol::interface::serial::Serial;
+use ross_protocol::protocol::Protocol;
 
 use crate::ross_configurator::*;
 
-pub fn upgrade_config(protocol: &mut Protocol<Serial>, programmer: &ProgrammerHelloEvent, devices: &Vec<BootloaderHelloEvent>, config: &str, address: u16) -> Result<(), ConfiguratorError>  {
+pub fn upgrade_config(
+    protocol: &mut Protocol<Serial>,
+    programmer: &ProgrammerHelloEvent,
+    devices: &Vec<BootloaderHelloEvent>,
+    config: &str,
+    address: u16,
+) -> Result<(), ConfiguratorError> {
     for device in devices.iter() {
         if device.bootloader_address == address {
             let file = match File::open(config) {
@@ -27,12 +33,20 @@ pub fn upgrade_config(protocol: &mut Protocol<Serial>, programmer: &ProgrammerHe
             let mut source_code = String::new();
 
             let mut reader = BufReader::new(file);
-            reader.read_to_string(&mut source_code).map_err(|err| ConfiguratorError::IOError(err))?;
+            reader
+                .read_to_string(&mut source_code)
+                .map_err(|err| ConfiguratorError::IOError(err))?;
 
-            let config = Parser::parse(&source_code).map_err(|err| ConfiguratorError::ParserError(err))?;
-            let config_data = ConfigSerializer::serialize(&config).map_err(|err| ConfiguratorError::ConfigSerializerError(err))?;
+            let config =
+                Parser::parse(&source_code).map_err(|err| ConfiguratorError::ParserError(err))?;
+            let config_data = ConfigSerializer::serialize(&config)
+                .map_err(|err| ConfiguratorError::ConfigSerializerError(err))?;
 
-            println!("Updating device's config (address: {:#06x}, config_size: {:#010x}).", address, config_data.len());
+            println!(
+                "Updating device's config (address: {:#06x}, config_size: {:#010x}).",
+                address,
+                config_data.len()
+            );
 
             let programmer_start_config_upgrade_event = ProgrammerStartConfigUpgradeEvent {
                 programmer_address: programmer.programmer_address,
@@ -40,9 +54,12 @@ pub fn upgrade_config(protocol: &mut Protocol<Serial>, programmer: &ProgrammerHe
                 config_size: config_data.len() as u32,
             };
 
-            let _: AckEvent = match protocol.exchange_packet(programmer_start_config_upgrade_event.to_packet(), false, TRANSACTION_RETRY_COUNT as u32, || {
-                sleep(Duration::from_millis(PACKET_TIMEOUT_MS))
-            }) {
+            let _: AckEvent = match protocol.exchange_packet(
+                programmer_start_config_upgrade_event.to_packet(),
+                false,
+                TRANSACTION_RETRY_COUNT as u32,
+                || sleep(Duration::from_millis(PACKET_TIMEOUT_MS)),
+            ) {
                 Ok(event) => event,
                 Err(err) => return Err(ConfiguratorError::ProtocolError(err)),
             };
@@ -61,7 +78,11 @@ pub fn upgrade_config(protocol: &mut Protocol<Serial>, programmer: &ProgrammerHe
                     DATA_PACKET_SIZE
                 };
 
-                println!("Sending bytes {} - {}", slice_start, slice_start + slice_offset);
+                println!(
+                    "Sending bytes {} - {}",
+                    slice_start,
+                    slice_start + slice_offset
+                );
 
                 let data = &config_data[slice_start..slice_start + slice_offset];
 
@@ -72,15 +93,18 @@ pub fn upgrade_config(protocol: &mut Protocol<Serial>, programmer: &ProgrammerHe
                     data: data.to_vec(),
                 };
 
-                let _: AckEvent = match protocol.exchange_packet(data_event.to_packet(), false, TRANSACTION_RETRY_COUNT as u32, || {
-                    sleep(Duration::from_millis(PACKET_TIMEOUT_MS))
-                }) {
+                let _: AckEvent = match protocol.exchange_packet(
+                    data_event.to_packet(),
+                    false,
+                    TRANSACTION_RETRY_COUNT as u32,
+                    || sleep(Duration::from_millis(PACKET_TIMEOUT_MS)),
+                ) {
                     Ok(event) => event,
                     Err(err) => return Err(ConfiguratorError::ProtocolError(err)),
                 };
             }
 
-            return Ok(())
+            return Ok(());
         }
     }
 

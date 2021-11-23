@@ -1,7 +1,7 @@
-use std::io::Error as IOError;
-use ross_protocol::protocol::ProtocolError;
-use ross_dsl::parser::ParserError;
 use ross_config::config::ConfigSerializerError;
+use ross_dsl::parser::ParserError;
+use ross_protocol::protocol::ProtocolError;
+use std::io::Error as IOError;
 
 pub const PACKET_TIMEOUT_MS: u64 = 100;
 pub const TRANSACTION_RETRY_COUNT: u64 = 5;

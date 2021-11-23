@@ -1,27 +1,27 @@
-use std::time::Duration;
 use clap::{clap_app, value_t};
 use parse_int::parse;
+use std::time::Duration;
 
-use ross_protocol::protocol::{Protocol, BROADCAST_ADDRESS};
 use ross_protocol::interface::serial::Serial;
+use ross_protocol::protocol::{Protocol, BROADCAST_ADDRESS};
 
-use crate::ross_configurator::*;
-use crate::get_programmer::get_programmer;
-use crate::get_devices::get_devices;
-use crate::upgrade_firmware::upgrade_firmware;
-use crate::upgrade_config::upgrade_config;
-use crate::set_device_address::set_device_address;
-use crate::send_event::send_event;
 use crate::event_type::EventType;
+use crate::get_devices::get_devices;
+use crate::get_programmer::get_programmer;
+use crate::ross_configurator::*;
+use crate::send_event::send_event;
+use crate::set_device_address::set_device_address;
+use crate::upgrade_config::upgrade_config;
+use crate::upgrade_firmware::upgrade_firmware;
 
-mod ross_configurator;
-mod get_programmer;
-mod get_devices;
-mod upgrade_firmware;
-mod upgrade_config;
-mod set_device_address;
-mod send_event;
 mod event_type;
+mod get_devices;
+mod get_programmer;
+mod ross_configurator;
+mod send_event;
+mod set_device_address;
+mod upgrade_config;
+mod upgrade_firmware;
 
 fn main() -> Result<(), ConfiguratorError> {
     let matches = clap_app!(ross_configurator =>
@@ -31,7 +31,7 @@ fn main() -> Result<(), ConfiguratorError> {
         (about: env!("CARGO_PKG_DESCRIPTION"))
         (@arg DEVICE: -d --device +required +takes_value "Path of device to use")
         (@arg BAUDRATE: -b --baudrate +takes_value "Baudrate to use")
-        (@subcommand get_programmer => 
+        (@subcommand get_programmer =>
             (about: "Gets connected programmer's information")
         )
         (@subcommand get_devices =>
@@ -57,26 +57,28 @@ fn main() -> Result<(), ConfiguratorError> {
             (@arg EVENT: -e --event +required +takes_value "Type of the event")
             (@arg DATA: -d --data ... +required +takes_value "Data of the event")
         )
-    ).get_matches();
+    )
+    .get_matches();
 
     let device = matches.value_of("DEVICE").unwrap();
     let baudrate = match matches.value_of("BAUDRATE") {
-        Some(baudrate_str) => {
-            match parse::<u64>(baudrate_str) {
-                Ok(baudrate) => baudrate,
-                Err(_) => {
-                    eprintln!("BAUDRATE is not a number.");
-                    return Err(ConfiguratorError::BadUsage);
-                }
+        Some(baudrate_str) => match parse::<u64>(baudrate_str) {
+            Ok(baudrate) => baudrate,
+            Err(_) => {
+                eprintln!("BAUDRATE is not a number.");
+                return Err(ConfiguratorError::BadUsage);
             }
         },
         None => DEFAULT_BAUDRATE,
-    };    
-    
-    let mut protocol = {        
+    };
+
+    let mut protocol = {
         let port = match serialport::new(device, baudrate as u32)
-            .timeout(Duration::from_millis(TRANSACTION_RETRY_COUNT * PACKET_TIMEOUT_MS))
-            .open() {
+            .timeout(Duration::from_millis(
+                TRANSACTION_RETRY_COUNT * PACKET_TIMEOUT_MS,
+            ))
+            .open()
+        {
             Ok(port) => port,
             Err(err) => {
                 eprintln!("Failed to open device.");
@@ -91,13 +93,11 @@ fn main() -> Result<(), ConfiguratorError> {
     let programmer = get_programmer(&mut protocol)?;
 
     match matches.subcommand() {
-        ("get_programmer", _) => {
-            Ok(())
-        },
+        ("get_programmer", _) => Ok(()),
         ("get_devices", _) => {
             get_devices(&mut protocol, &programmer)?;
             Ok(())
-        },
+        }
         ("upgrade_firmware", sub_matches) => {
             let sub_matches = sub_matches.unwrap();
 
@@ -115,7 +115,7 @@ fn main() -> Result<(), ConfiguratorError> {
             upgrade_firmware(&mut protocol, &programmer, &devices, firmware, address)?;
 
             Ok(())
-        },
+        }
         ("upgrade_config", sub_matches) => {
             let sub_matches = sub_matches.unwrap();
 
@@ -133,7 +133,7 @@ fn main() -> Result<(), ConfiguratorError> {
             upgrade_config(&mut protocol, &programmer, &devices, config, address)?;
 
             Ok(())
-        },
+        }
         ("set_device_address", sub_matches) => {
             let sub_matches = sub_matches.unwrap();
 
@@ -158,7 +158,7 @@ fn main() -> Result<(), ConfiguratorError> {
             set_device_address(&mut protocol, &programmer, &devices, new_address, address)?;
 
             Ok(())
-        },
+        }
         ("send_event", sub_matches) => {
             let sub_matches = sub_matches.unwrap();
 
@@ -168,9 +168,7 @@ fn main() -> Result<(), ConfiguratorError> {
             send_event(&mut protocol, event, data)?;
 
             Ok(())
-        },
-        (_, _) => {
-            Ok(())
-        },
+        }
+        (_, _) => Ok(()),
     }
 }

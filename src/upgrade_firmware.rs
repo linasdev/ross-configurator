@@ -1,18 +1,24 @@
-use std::thread::sleep;
-use std::time::Duration;
 use std::fs::File;
 use std::io::Read;
+use std::thread::sleep;
+use std::time::Duration;
 
-use ross_protocol::protocol::Protocol;
-use ross_protocol::interface::serial::Serial;
 use ross_protocol::convert_packet::ConvertPacket;
-use ross_protocol::event::programmer::*;
-use ross_protocol::event::general::*;
 use ross_protocol::event::bootloader::*;
+use ross_protocol::event::general::*;
+use ross_protocol::event::programmer::*;
+use ross_protocol::interface::serial::Serial;
+use ross_protocol::protocol::Protocol;
 
 use crate::ross_configurator::*;
 
-pub fn upgrade_firmware(protocol: &mut Protocol<Serial>, programmer: &ProgrammerHelloEvent, devices: &Vec<BootloaderHelloEvent>, firmware: &str, address: u16) -> Result<(), ConfiguratorError>  {
+pub fn upgrade_firmware(
+    protocol: &mut Protocol<Serial>,
+    programmer: &ProgrammerHelloEvent,
+    devices: &Vec<BootloaderHelloEvent>,
+    firmware: &str,
+    address: u16,
+) -> Result<(), ConfiguratorError> {
     for device in devices.iter() {
         if device.bootloader_address == address {
             let mut file = match File::open(firmware) {
@@ -22,13 +28,17 @@ pub fn upgrade_firmware(protocol: &mut Protocol<Serial>, programmer: &Programmer
                 }
             };
 
-            let mut buf = vec!();
+            let mut buf = vec![];
 
             if let Err(err) = file.read_to_end(&mut buf) {
                 return Err(ConfiguratorError::IOError(err));
             }
 
-            println!("Updating device's firmware (address: {:#06x}, firmware_size: {:#010x}).", address, buf.len());
+            println!(
+                "Updating device's firmware (address: {:#06x}, firmware_size: {:#010x}).",
+                address,
+                buf.len()
+            );
 
             let programmer_start_upload_event = ProgrammerStartFirmwareUpgradeEvent {
                 programmer_address: programmer.programmer_address,
@@ -36,9 +46,12 @@ pub fn upgrade_firmware(protocol: &mut Protocol<Serial>, programmer: &Programmer
                 firmware_size: buf.len() as u32,
             };
 
-            let _: AckEvent = match protocol.exchange_packet(programmer_start_upload_event.to_packet(), false, TRANSACTION_RETRY_COUNT as u32, || {
-                sleep(Duration::from_millis(PACKET_TIMEOUT_MS))
-            }) {
+            let _: AckEvent = match protocol.exchange_packet(
+                programmer_start_upload_event.to_packet(),
+                false,
+                TRANSACTION_RETRY_COUNT as u32,
+                || sleep(Duration::from_millis(PACKET_TIMEOUT_MS)),
+            ) {
                 Ok(event) => event,
                 Err(err) => return Err(ConfiguratorError::ProtocolError(err)),
             };
@@ -57,7 +70,11 @@ pub fn upgrade_firmware(protocol: &mut Protocol<Serial>, programmer: &Programmer
                     DATA_PACKET_SIZE
                 };
 
-                println!("Sending bytes {} - {}", slice_start, slice_start + slice_offset);
+                println!(
+                    "Sending bytes {} - {}",
+                    slice_start,
+                    slice_start + slice_offset
+                );
 
                 let data = &buf[slice_start..slice_start + slice_offset];
 
@@ -68,15 +85,18 @@ pub fn upgrade_firmware(protocol: &mut Protocol<Serial>, programmer: &Programmer
                     data: data.to_vec(),
                 };
 
-                let _: AckEvent = match protocol.exchange_packet(data_event.to_packet(), false, TRANSACTION_RETRY_COUNT as u32, || {
-                    sleep(Duration::from_millis(PACKET_TIMEOUT_MS))
-                }) {
+                let _: AckEvent = match protocol.exchange_packet(
+                    data_event.to_packet(),
+                    false,
+                    TRANSACTION_RETRY_COUNT as u32,
+                    || sleep(Duration::from_millis(PACKET_TIMEOUT_MS)),
+                ) {
                     Ok(event) => event,
                     Err(err) => return Err(ConfiguratorError::ProtocolError(err)),
                 };
             }
 
-            return Ok(())
+            return Ok(());
         }
     }
 
