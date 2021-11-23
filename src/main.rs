@@ -8,14 +8,14 @@ use ross_protocol::interface::serial::Serial;
 use crate::ross_configurator::*;
 use crate::get_programmer::get_programmer;
 use crate::get_devices::get_devices;
-use crate::update_firmware::update_firmware;
+use crate::upgrade_firmware::upgrade_firmware;
 use crate::send_event::send_event;
 use crate::event_type::EventType;
 
 mod ross_configurator;
 mod get_programmer;
 mod get_devices;
-mod update_firmware;
+mod upgrade_firmware;
 mod send_event;
 mod event_type;
 
@@ -33,8 +33,8 @@ fn main() -> Result<(), ConfiguratorError> {
         (@subcommand get_devices =>
             (about: "Gets connected devices' information")
         )
-        (@subcommand update_firmware =>
-            (about: "Updates a specific device's firmware")
+        (@subcommand upgrade_firmware =>
+            (about: "Upgrades a specific device's firmware")
             (@arg FIRMWARE: -f --firmware +required +takes_value "Path of the firmware to use")
             (@arg ADDRESS: -a --address +required +takes_value "Recipient device address")
         )
@@ -83,7 +83,7 @@ fn main() -> Result<(), ConfiguratorError> {
             get_devices(&mut protocol)?;
             Ok(())
         },
-        ("update_firmware", sub_matches) => {
+        ("upgrade_firmware", sub_matches) => {
             let sub_matches = sub_matches.unwrap();
 
             let firmware = sub_matches.value_of("FIRMWARE").unwrap();
@@ -95,7 +95,7 @@ fn main() -> Result<(), ConfiguratorError> {
                 }
             };
 
-            update_firmware(&mut protocol, firmware, address)?;
+            upgrade_firmware(&mut protocol, firmware, address)?;
 
             Ok(())
         },

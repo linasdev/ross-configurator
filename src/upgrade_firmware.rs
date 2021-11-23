@@ -13,7 +13,7 @@ use crate::ross_configurator::*;
 use crate::get_programmer::get_programmer;
 use crate::get_devices::get_devices;
 
-pub fn update_firmware(protocol: &mut Protocol<Serial>, firmware: &str, address: u16) -> Result<(), ConfiguratorError>  {
+pub fn upgrade_firmware(protocol: &mut Protocol<Serial>, firmware: &str, address: u16) -> Result<(), ConfiguratorError>  {
     let programmer = get_programmer(protocol)?;
     let devices = get_devices(protocol)?;
 
