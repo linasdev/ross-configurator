@@ -49,7 +49,7 @@ fn main() -> Result<(), ConfiguratorError> {
         )
         (@subcommand set_device_address =>
             (about: "Sets a specific device's address")
-            (@arg NEW_ADDRESS: -n --new-address +required +takes_value "New device address")
+            (@arg NEW_ADDRESS: -n --("new-address") +required +takes_value "New device address")
             (@arg ADDRESS: -a --address +required +takes_value "Recipient device address")
         )
         (@subcommand send_event =>
