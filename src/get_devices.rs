@@ -4,7 +4,7 @@ use std::time::Duration;
 use ross_protocol::protocol::Protocol;
 use ross_protocol::interface::serial::Serial;
 use ross_protocol::convert_packet::ConvertPacket;
-use ross_protocol::event::bootloader_event::*;
+use ross_protocol::event::bootloader::*;
 
 use crate::ross_configurator::*;
 use crate::get_programmer::get_programmer;
@@ -22,7 +22,7 @@ pub fn get_devices(protocol: &mut Protocol<Serial>) -> Result<Vec<BootloaderHell
     devices.dedup();
 
     for bootloader_hello_event in devices.iter() {
-        println!("Found device (address: {:#06x}, firmware_version: {:#010x})", bootloader_hello_event.bootloader_address, bootloader_hello_event.firmware_version);
+        println!("Found device (address: {:#06x})", bootloader_hello_event.bootloader_address);
     }
 
     Ok(devices)

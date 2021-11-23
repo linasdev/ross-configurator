@@ -36,7 +36,6 @@ fn main() -> Result<(), ConfiguratorError> {
         (@subcommand update_firmware =>
             (about: "Updates a specific device's firmware")
             (@arg FIRMWARE: -f --firmware +required +takes_value "Path of the firmware to use")
-            (@arg VERSION: -v --version +required +takes_value "New firmware's version")
             (@arg ADDRESS: -a --address +required +takes_value "Recipient device address")
         )
         (@subcommand send_event =>
@@ -88,13 +87,6 @@ fn main() -> Result<(), ConfiguratorError> {
             let sub_matches = sub_matches.unwrap();
 
             let firmware = sub_matches.value_of("FIRMWARE").unwrap();
-            let version = match parse::<u32>(sub_matches.value_of("VERSION").unwrap()) {
-                Ok(version) => version,
-                Err(_) => {
-                    eprintln!("VERSION is not a number.");
-                    return Err(ConfiguratorError::BadUsage);
-                }
-            };
             let address = match parse::<u16>(sub_matches.value_of("ADDRESS").unwrap()) {
                 Ok(address) => address,
                 Err(_) => {
@@ -103,7 +95,7 @@ fn main() -> Result<(), ConfiguratorError> {
                 }
             };
 
-            update_firmware(&mut protocol, firmware, version, address)?;
+            update_firmware(&mut protocol, firmware, address)?;
 
             Ok(())
         },

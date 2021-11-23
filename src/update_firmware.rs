@@ -6,14 +6,14 @@ use std::io::Read;
 use ross_protocol::protocol::Protocol;
 use ross_protocol::interface::serial::Serial;
 use ross_protocol::convert_packet::ConvertPacket;
-use ross_protocol::event::programmer_event::*;
-use ross_protocol::event::general_event::*;
+use ross_protocol::event::programmer::*;
+use ross_protocol::event::general::*;
 
 use crate::ross_configurator::*;
 use crate::get_programmer::get_programmer;
 use crate::get_devices::get_devices;
 
-pub fn update_firmware(protocol: &mut Protocol<Serial>, firmware: &str, version: u32, address: u16) -> Result<(), ConfiguratorError>  {
+pub fn update_firmware(protocol: &mut Protocol<Serial>, firmware: &str, address: u16) -> Result<(), ConfiguratorError>  {
     let programmer = get_programmer(protocol)?;
     let devices = get_devices(protocol)?;
 
@@ -32,12 +32,11 @@ pub fn update_firmware(protocol: &mut Protocol<Serial>, firmware: &str, version:
                 return Err(ConfiguratorError::IOError(err));
             }
 
-            println!("Updating device's firmware (address: {:#06x}, old_firmware_version: {:#010x}, new_firmware_version: {:#010x}, firmware_size: {:#010x}).", address, device.firmware_version, version, buf.len());
+            println!("Updating device's firmware (address: {:#06x}, firmware_size: {:#010x}).", address, buf.len());
 
-            let programmer_start_upload_event = ProgrammerStartUploadEvent {
+            let programmer_start_upload_event = ProgrammerStartFirmwareUpgradeEvent {
                 programmer_address: programmer.programmer_address,
                 receiver_address: device.bootloader_address,
-                new_firmware_version: version,
                 firmware_size: buf.len() as u32,
             };
 

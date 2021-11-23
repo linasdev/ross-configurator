@@ -6,11 +6,19 @@ arg_enum! {
         Ack,
         Data,
 
+        ConfiguratorHello,
+
         BootloaderHello,
 
         ProgrammerHello,
-        ProgrammerStartUpload,
+        ProgrammerStartFirmwareUpgrade,
+        ProgrammerStartConfigUpgrade,
 
         BcmChangeBrightness,
+
+        ButtonPressed,
+        ButtonReleased,
+
+        SystemTick
     }
 }
