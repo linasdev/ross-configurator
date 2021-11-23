@@ -81,13 +81,14 @@ fn main() -> Result<(), ConfiguratorError> {
         Protocol::new(BROADCAST_ADDRESS, serial)
     };
 
+    let programmer = get_programmer(&mut protocol)?;
+
     match matches.subcommand() {
         ("get_programmer", _) => {
-            get_programmer(&mut protocol)?;
             Ok(())
         },
         ("get_devices", _) => {
-            get_devices(&mut protocol)?;
+            get_devices(&mut protocol, &programmer)?;
             Ok(())
         },
         ("upgrade_firmware", sub_matches) => {
@@ -102,7 +103,9 @@ fn main() -> Result<(), ConfiguratorError> {
                 }
             };
 
-            upgrade_firmware(&mut protocol, firmware, address)?;
+            let devices = get_devices(&mut protocol, &programmer)?;
+
+            upgrade_firmware(&mut protocol, &programmer, &devices, firmware, address)?;
 
             Ok(())
         },
@@ -118,7 +121,9 @@ fn main() -> Result<(), ConfiguratorError> {
                 }
             };
 
-            upgrade_config(&mut protocol, config, address)?;
+            let devices = get_devices(&mut protocol, &programmer)?;
+
+            upgrade_config(&mut protocol, &programmer, &devices, config, address)?;
 
             Ok(())
         },

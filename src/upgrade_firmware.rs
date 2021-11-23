@@ -8,15 +8,11 @@ use ross_protocol::interface::serial::Serial;
 use ross_protocol::convert_packet::ConvertPacket;
 use ross_protocol::event::programmer::*;
 use ross_protocol::event::general::*;
+use ross_protocol::event::bootloader::*;
 
 use crate::ross_configurator::*;
-use crate::get_programmer::get_programmer;
-use crate::get_devices::get_devices;
 
-pub fn upgrade_firmware(protocol: &mut Protocol<Serial>, firmware: &str, address: u16) -> Result<(), ConfiguratorError>  {
-    let programmer = get_programmer(protocol)?;
-    let devices = get_devices(protocol)?;
-
+pub fn upgrade_firmware(protocol: &mut Protocol<Serial>, programmer: &ProgrammerHelloEvent, devices: &Vec<BootloaderHelloEvent>, firmware: &str, address: u16) -> Result<(), ConfiguratorError>  {
     for device in devices.iter() {
         if device.bootloader_address == address {
             let mut file = match File::open(firmware) {
