@@ -9,6 +9,7 @@ use crate::ross_configurator::*;
 use crate::get_programmer::get_programmer;
 use crate::get_devices::get_devices;
 use crate::upgrade_firmware::upgrade_firmware;
+use crate::upgrade_config::upgrade_config;
 use crate::send_event::send_event;
 use crate::event_type::EventType;
 
@@ -16,6 +17,7 @@ mod ross_configurator;
 mod get_programmer;
 mod get_devices;
 mod upgrade_firmware;
+mod upgrade_config;
 mod send_event;
 mod event_type;
 
@@ -36,6 +38,11 @@ fn main() -> Result<(), ConfiguratorError> {
         (@subcommand upgrade_firmware =>
             (about: "Upgrades a specific device's firmware")
             (@arg FIRMWARE: -f --firmware +required +takes_value "Path of the firmware to use")
+            (@arg ADDRESS: -a --address +required +takes_value "Recipient device address")
+        )
+        (@subcommand upgrade_config =>
+            (about: "Upgrades a specific device's config")
+            (@arg CONFIG: -c --config +required +takes_value "Path of the config to use")
             (@arg ADDRESS: -a --address +required +takes_value "Recipient device address")
         )
         (@subcommand send_event =>
@@ -96,6 +103,22 @@ fn main() -> Result<(), ConfiguratorError> {
             };
 
             upgrade_firmware(&mut protocol, firmware, address)?;
+
+            Ok(())
+        },
+        ("upgrade_config", sub_matches) => {
+            let sub_matches = sub_matches.unwrap();
+
+            let config = sub_matches.value_of("CONFIG").unwrap();
+            let address = match parse::<u16>(sub_matches.value_of("ADDRESS").unwrap()) {
+                Ok(address) => address,
+                Err(_) => {
+                    eprintln!("ADDRESS is not a number.");
+                    return Err(ConfiguratorError::BadUsage);
+                }
+            };
+
+            upgrade_config(&mut protocol, config, address)?;
 
             Ok(())
         },

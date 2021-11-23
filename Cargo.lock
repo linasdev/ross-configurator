@@ -158,6 +158,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "812b30ff14930407c86a23e256ac050b8e6913f597adcc88e29d40517f7a16de"
 
 [[package]]
+name = "downcast-rs"
+version = "1.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9ea835d29036a4087793836fa931b08837ad5e957da9e23886b29586fb9b6650"
+
+[[package]]
 name = "embedded-can"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -375,10 +381,29 @@ dependencies = [
 ]
 
 [[package]]
+name = "regex-lexer"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2f003f756c9989a14e6bd948d4d8cd0c6f097fe59b6559982fc4c343cb1ec2a7"
+dependencies = [
+ "regex",
+]
+
+[[package]]
 name = "regex-syntax"
 version = "0.6.25"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f497285884f3fcff424ffc933e56d7cbca511def0c9831a7f9b5f6153e3cc89b"
+
+[[package]]
+name = "ross-config"
+version = "1.14.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5282de1a9c740bfe671cdd34cf8ad698ad28fef61ab32c9ec86251551717c1d7"
+dependencies = [
+ "downcast-rs",
+ "ross-protocol",
+]
 
 [[package]]
 name = "ross-configurator"
@@ -386,8 +411,22 @@ version = "0.2.0"
 dependencies = [
  "clap",
  "parse_int",
+ "ross-config",
+ "ross-dsl",
  "ross-protocol",
  "serialport",
+]
+
+[[package]]
+name = "ross-dsl"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1f06b1628e702cf810c0d643925aee4efb8961c1369fcab4d408d4108e670a1c"
+dependencies = [
+ "regex",
+ "regex-lexer",
+ "ross-config",
+ "ross-protocol",
 ]
 
 [[package]]
