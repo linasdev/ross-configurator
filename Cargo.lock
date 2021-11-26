@@ -352,6 +352,22 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3831453b3449ceb48b6d9c7ad7c96d5ea673e9b470a1dc578c2ce6521230884c"
 
 [[package]]
+name = "postcard"
+version = "0.7.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c8863e251332eb18520388099b8b0acc4810ed6e602e3b6f674e8a46ba20e15c"
+dependencies = [
+ "postcard-cobs",
+ "serde",
+]
+
+[[package]]
+name = "postcard-cobs"
+version = "0.1.5-pre"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7c68cb38ed13fd7bc9dd5db8f165b7c8d9c1a315104083a2b10f11354c2af97f"
+
+[[package]]
 name = "proc-macro2"
 version = "1.0.28"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -397,12 +413,14 @@ checksum = "f497285884f3fcff424ffc933e56d7cbca511def0c9831a7f9b5f6153e3cc89b"
 
 [[package]]
 name = "ross-config"
-version = "1.14.0"
+version = "1.20.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5282de1a9c740bfe671cdd34cf8ad698ad28fef61ab32c9ec86251551717c1d7"
+checksum = "99832ebcf60869831d43a9f23891c323dc10ab3da5a31d3b6e809e4c9ef5e9a5"
 dependencies = [
  "downcast-rs",
+ "postcard",
  "ross-protocol",
+ "serde",
 ]
 
 [[package]]
@@ -419,10 +437,11 @@ dependencies = [
 
 [[package]]
 name = "ross-dsl"
-version = "1.0.0"
+version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1f06b1628e702cf810c0d643925aee4efb8961c1369fcab4d408d4108e670a1c"
+checksum = "77b0d4126c4d134c9e8062d2f198380f37ed62798c3461ee02aec4900111afc6"
 dependencies = [
+ "parse_int",
  "regex",
  "regex-lexer",
  "ross-config",
@@ -431,9 +450,9 @@ dependencies = [
 
 [[package]]
 name = "ross-protocol"
-version = "1.19.0"
+version = "1.20.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e82a7380087e905cf33b48db5af1417d46148b93f365f3875c8414e850ee7978"
+checksum = "850e6c4569cf8ebcdb753ad4a0eacc124e2e795fa8e30a19b62abbdadf44d25f"
 dependencies = [
  "bxcan",
  "cobs",
@@ -458,6 +477,26 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "00b0bef5b7f9e0df16536d3961cfb6e84331c065b4066afb39768d0e319411f7"
 dependencies = [
  "pest",
+]
+
+[[package]]
+name = "serde"
+version = "1.0.130"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f12d06de37cf59146fbdecab66aa99f9fe4f78722e3607577a5375d66bd0c913"
+dependencies = [
+ "serde_derive",
+]
+
+[[package]]
+name = "serde_derive"
+version = "1.0.130"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d7bc1a1ab1961464eae040d96713baa5a724a8152c1222492465b54322ec508b"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]

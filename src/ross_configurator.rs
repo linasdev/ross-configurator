@@ -1,5 +1,5 @@
 use ross_config::config::ConfigSerializerError;
-use ross_dsl::parser::ParserError;
+use ross_dsl::ParserError;
 use ross_protocol::protocol::ProtocolError;
 use std::io::Error as IOError;
 
