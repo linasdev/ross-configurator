@@ -413,9 +413,9 @@ checksum = "f497285884f3fcff424ffc933e56d7cbca511def0c9831a7f9b5f6153e3cc89b"
 
 [[package]]
 name = "ross-config"
-version = "1.25.0"
+version = "1.26.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f65dbb26c974969f5adbe8da90dd49079b49a23a7f2decf8f80a7116e453c180"
+checksum = "5807730762fa2657634709350d993ead8b602fe63b25dba8e0b1059d078ff566"
 dependencies = [
  "downcast-rs",
  "postcard",
