@@ -413,18 +413,6 @@ checksum = "f497285884f3fcff424ffc933e56d7cbca511def0c9831a7f9b5f6153e3cc89b"
 
 [[package]]
 name = "ross-config"
-version = "1.31.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e950676e870840c9b1eeb69a9fd19f3e346a8b8a9b1b0b696d7cf9b357f43ca5"
-dependencies = [
- "downcast-rs",
- "postcard",
- "ross-protocol",
- "serde",
-]
-
-[[package]]
-name = "ross-config"
 version = "2.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7fad153841bd8b129de42b0d3c25a2c525e8f6716d05fd1f28f7c67234c6f130"
@@ -441,7 +429,7 @@ version = "1.0.0"
 dependencies = [
  "clap",
  "parse_int",
- "ross-config 1.31.0",
+ "ross-config",
  "ross-dsl",
  "ross-protocol",
  "serialport",
@@ -456,7 +444,7 @@ dependencies = [
  "parse_int",
  "regex",
  "regex-lexer",
- "ross-config 2.1.0",
+ "ross-config",
  "ross-protocol",
 ]
 
