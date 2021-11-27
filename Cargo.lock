@@ -437,9 +437,9 @@ dependencies = [
 
 [[package]]
 name = "ross-dsl"
-version = "1.8.0"
+version = "1.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cc62d3e486e6db5fd517083d90ea42ef25f72150a7e8023ed5df471c84841bf6"
+checksum = "9c0fe22338fa66ec2007ebdf769e68f9a064d3776adb493914099d077be56bbd"
 dependencies = [
  "parse_int",
  "regex",
