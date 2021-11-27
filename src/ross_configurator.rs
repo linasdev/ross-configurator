@@ -1,4 +1,4 @@
-use ross_config::config::ConfigSerializerError;
+use ross_config::serializer::ConfigSerializerError;
 use ross_dsl::ParserError;
 use ross_protocol::protocol::ProtocolError;
 use std::io::Error as IOError;

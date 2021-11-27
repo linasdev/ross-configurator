@@ -3,7 +3,7 @@ use std::io::{BufReader, Read};
 use std::thread::sleep;
 use std::time::Duration;
 
-use ross_config::config::ConfigSerializer;
+use ross_config::serializer::ConfigSerializer;
 use ross_dsl::Parser;
 use ross_protocol::convert_packet::ConvertPacket;
 use ross_protocol::event::bootloader::*;
