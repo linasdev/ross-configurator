@@ -129,6 +129,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c44be444fc7959957b0f331d596bafcfbbe30cbdf41665d1c40c68eda24137f6"
 
 [[package]]
+name = "cool_asserts"
+version = "1.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fea70c9cbd7d29920c31f511d12313838ba4678c7d7cac08e5cc42471ecec443"
+
+[[package]]
 name = "defmt"
 version = "0.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -241,6 +247,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "indent_write"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9ff1c68e65f3c8d1962de1426c5417d9bc65318eae16fb59ddd04d8253e20eba"
+
+[[package]]
 name = "libc"
 version = "0.2.98"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -291,6 +303,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b16bd47d9e329435e309c58469fe0791c2d0d1ba96ec0954152a5ae2b04387dc"
 
 [[package]]
+name = "minimal-lexical"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "68354c5c6bd36d73ff3feceb05efa59b6acb7626617f4962be322a825e61f79a"
+
+[[package]]
 name = "nb"
 version = "0.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -316,6 +334,17 @@ dependencies = [
  "cfg-if",
  "libc",
  "void",
+]
+
+[[package]]
+name = "nom"
+version = "7.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1b1d11e1ef389c76fe5b81bcaf2ea32cf88b62bc494e19f493d0b30e7a930109"
+dependencies = [
+ "memchr",
+ "minimal-lexical",
+ "version_check",
 ]
 
 [[package]]
@@ -381,15 +410,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "regex-lexer"
-version = "0.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2f003f756c9989a14e6bd948d4d8cd0c6f097fe59b6559982fc4c343cb1ec2a7"
-dependencies = [
- "regex",
-]
-
-[[package]]
 name = "regex-syntax"
 version = "0.6.25"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -397,9 +417,9 @@ checksum = "f497285884f3fcff424ffc933e56d7cbca511def0c9831a7f9b5f6153e3cc89b"
 
 [[package]]
 name = "ross-config"
-version = "2.2.0"
+version = "2.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dd75c1fae28281b3389d3fca90d0147a011e7aa221ab453e558c798356977d5f"
+checksum = "88d593cf345f08034dd53ffda23364465555931ac7e1ff0c0440a7d41fc6a7c1"
 dependencies = [
  "downcast-rs",
  "ross-protocol",
@@ -419,22 +439,23 @@ dependencies = [
 
 [[package]]
 name = "ross-dsl"
-version = "1.11.0"
+version = "2.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "883de02b7b5b44cf83f9c2bbf7f2fb76236f22cfa38564b7ebe4397749157906"
+checksum = "6dc098b25b0aa5a9a74fdef725a3c9592a8d409760278e1edad6ba8dda545952"
 dependencies = [
+ "cool_asserts",
+ "indent_write",
+ "nom",
  "parse_int",
- "regex",
- "regex-lexer",
  "ross-config",
  "ross-protocol",
 ]
 
 [[package]]
 name = "ross-protocol"
-version = "1.22.0"
+version = "1.25.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "60455d236ffaf54770080139403649c40c1827a42cab04659427fdb3ff3b26fa"
+checksum = "eb07718b0bb39c440885c0a0876a7cc7d2e7f7fff757700250265f50cdbbd772"
 dependencies = [
  "bxcan",
  "cobs",

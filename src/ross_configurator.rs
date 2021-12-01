@@ -1,5 +1,5 @@
 use ross_config::serializer::ConfigSerializerError;
-use ross_dsl::ParserError;
+use ross_dsl::error::ParserError;
 use ross_protocol::protocol::ProtocolError;
 use std::io::Error as IOError;
 
@@ -15,6 +15,6 @@ pub enum ConfiguratorError {
     IOError(IOError),
     FailedToOpenDevice(serialport::Error),
     ProtocolError(ProtocolError),
-    ParserError(ParserError),
+    ParserError(ParserError<String>),
     ConfigSerializerError(ConfigSerializerError),
 }
