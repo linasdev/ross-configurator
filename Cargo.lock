@@ -417,9 +417,9 @@ checksum = "f497285884f3fcff424ffc933e56d7cbca511def0c9831a7f9b5f6153e3cc89b"
 
 [[package]]
 name = "ross-config"
-version = "2.3.0"
+version = "2.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "88d593cf345f08034dd53ffda23364465555931ac7e1ff0c0440a7d41fc6a7c1"
+checksum = "1e53e14c510a100acfff0aa5897a7855e3ca7cd216ad59510c3b9f0b0c8c7c85"
 dependencies = [
  "downcast-rs",
  "ross-protocol",
@@ -439,9 +439,9 @@ dependencies = [
 
 [[package]]
 name = "ross-dsl"
-version = "2.0.0"
+version = "2.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6dc098b25b0aa5a9a74fdef725a3c9592a8d409760278e1edad6ba8dda545952"
+checksum = "e9c8040904527da79ae10a99bce65f5f4d1e70c8e60291b811da7a82bc4f0f76"
 dependencies = [
  "cool_asserts",
  "indent_write",
