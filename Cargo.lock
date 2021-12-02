@@ -439,9 +439,9 @@ dependencies = [
 
 [[package]]
 name = "ross-dsl"
-version = "2.1.0"
+version = "2.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e9c8040904527da79ae10a99bce65f5f4d1e70c8e60291b811da7a82bc4f0f76"
+checksum = "6da57cadea2e74c02cfc3e38c6575602654aa040c8eb01c0c05bfc53c03aa11c"
 dependencies = [
  "cool_asserts",
  "indent_write",
