@@ -417,9 +417,9 @@ checksum = "f497285884f3fcff424ffc933e56d7cbca511def0c9831a7f9b5f6153e3cc89b"
 
 [[package]]
 name = "ross-config"
-version = "2.7.0"
+version = "2.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1c13d0fb6bb52647eeac9346358eb1ce097efdcd5ba17ca06937da91a2eadb9b"
+checksum = "7f3162701695455f0ab8836390441ae6c4ec8db5466ca2bf03211cee43e3eeb0"
 dependencies = [
  "downcast-rs",
  "ross-protocol",
