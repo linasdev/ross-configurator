@@ -1,7 +1,10 @@
 use clap::{clap_app, value_t};
 use parse_int::parse;
+use std::fs::File;
+use std::io::{BufReader, Read};
 use std::time::Duration;
 
+use ross_dsl::Parser;
 use ross_protocol::interface::serial::Serial;
 use ross_protocol::protocol::{Protocol, BROADCAST_ADDRESS};
 
@@ -90,11 +93,13 @@ fn main() -> Result<(), ConfiguratorError> {
         Protocol::new(BROADCAST_ADDRESS, serial)
     };
 
-    let programmer = get_programmer(&mut protocol)?;
-
     match matches.subcommand() {
-        ("get_programmer", _) => Ok(()),
+        ("get_programmer", _) => {
+            get_programmer(&mut protocol)?;
+            Ok(())
+        }
         ("get_devices", _) => {
+            let programmer = get_programmer(&mut protocol)?;
             get_devices(&mut protocol, &programmer)?;
             Ok(())
         }
@@ -110,6 +115,7 @@ fn main() -> Result<(), ConfiguratorError> {
                 }
             };
 
+            let programmer = get_programmer(&mut protocol)?;
             let devices = get_devices(&mut protocol, &programmer)?;
 
             upgrade_firmware(&mut protocol, &programmer, &devices, firmware, address)?;
@@ -128,9 +134,31 @@ fn main() -> Result<(), ConfiguratorError> {
                 }
             };
 
+            let file = match File::open(config) {
+                Ok(file) => file,
+                Err(err) => {
+                    return Err(ConfiguratorError::IOError(err));
+                }
+            };
+
+            let mut source_code = String::new();
+
+            let mut reader = BufReader::new(file);
+            reader
+                .read_to_string(&mut source_code)
+                .map_err(|err| ConfiguratorError::IOError(err))?;
+
+            let config = Parser::parse(&source_code).map_err(|err| {
+                eprintln!("Parsing failed with error:");
+                eprintln!("{}", err);
+
+                ConfiguratorError::ParserError(err)
+            })?;
+
+            let programmer = get_programmer(&mut protocol)?;
             let devices = get_devices(&mut protocol, &programmer)?;
 
-            upgrade_config(&mut protocol, &programmer, &devices, config, address)?;
+            upgrade_config(&mut protocol, &programmer, &devices, &config, address)?;
 
             Ok(())
         }
@@ -153,6 +181,7 @@ fn main() -> Result<(), ConfiguratorError> {
                 }
             };
 
+            let programmer = get_programmer(&mut protocol)?;
             let devices = get_devices(&mut protocol, &programmer)?;
 
             set_device_address(&mut protocol, &programmer, &devices, new_address, address)?;
@@ -165,6 +194,7 @@ fn main() -> Result<(), ConfiguratorError> {
             let event = value_t!(sub_matches, "EVENT", EventType).unwrap_or_else(|e| e.exit());
             let data = sub_matches.values_of("DATA").unwrap().collect();
 
+            get_programmer(&mut protocol)?;
             send_event(&mut protocol, event, data)?;
 
             Ok(())

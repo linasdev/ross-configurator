@@ -77,8 +77,8 @@ pub fn send_event(
         }
         ProgrammerStartFirmwareUpgrade => {
             let receiver_address = parse_u16(data[0], "receiver_address")?;
-            let programmer_address = parse_u16(data[0], "programmer_address")?;
-            let firmware_size = parse_u32(data[1], "firmware_size")?;
+            let programmer_address = parse_u16(data[1], "programmer_address")?;
+            let firmware_size = parse_u32(data[2], "firmware_size")?;
 
             ProgrammerStartFirmwareUpgradeEvent {
                 receiver_address,

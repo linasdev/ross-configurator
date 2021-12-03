@@ -1,10 +1,8 @@
-use std::fs::File;
-use std::io::{BufReader, Read};
 use std::thread::sleep;
 use std::time::Duration;
 
+use ross_config::config::Config;
 use ross_config::serializer::ConfigSerializer;
-use ross_dsl::Parser;
 use ross_protocol::convert_packet::ConvertPacket;
 use ross_protocol::event::bootloader::*;
 use ross_protocol::event::general::*;
@@ -18,28 +16,12 @@ pub fn upgrade_config(
     protocol: &mut Protocol<Serial>,
     programmer: &ProgrammerHelloEvent,
     devices: &Vec<BootloaderHelloEvent>,
-    config: &str,
+    config: &Config,
     address: u16,
 ) -> Result<(), ConfiguratorError> {
     for device in devices.iter() {
         if device.bootloader_address == address {
-            let file = match File::open(config) {
-                Ok(file) => file,
-                Err(err) => {
-                    return Err(ConfiguratorError::IOError(err));
-                }
-            };
-
-            let mut source_code = String::new();
-
-            let mut reader = BufReader::new(file);
-            reader
-                .read_to_string(&mut source_code)
-                .map_err(|err| ConfiguratorError::IOError(err))?;
-
-            let config =
-                Parser::parse(&source_code).map_err(|err| ConfiguratorError::ParserError(err))?;
-            let config_data = ConfigSerializer::serialize(&config)
+            let config_data = ConfigSerializer::serialize(config)
                 .map_err(|err| ConfiguratorError::ConfigSerializerError(err))?;
 
             println!(
