@@ -14,8 +14,6 @@ arg_enum! {
         ProgrammerStartFirmwareUpgrade,
         ProgrammerStartConfigUpgrade,
 
-        BcmChangeBrightness,
-
         ButtonPressed,
         ButtonReleased,
 

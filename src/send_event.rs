@@ -56,9 +56,7 @@ pub fn send_event(
             }
             .to_packet()
         }
-
         ConfiguratorHello => ConfiguratorHelloEvent {}.to_packet(),
-
         BootloaderHello => {
             let programmer_address = parse_u16(data[0], "programmer_address")?;
             let bootloader_address = parse_u16(data[1], "bootloader_address")?;
@@ -99,22 +97,6 @@ pub fn send_event(
             }
             .to_packet()
         }
-
-        BcmChangeBrightness => {
-            let bcm_address = parse_u16(data[0], "bcm_address")?;
-            let transmitter_address = parse_u16(data[1], "transmitter_address")?;
-            let channel = parse_u8(data[2], "channel")?;
-            let brightness = parse_u8(data[3], "brightness")?;
-
-            BcmChangeBrightnessEvent {
-                bcm_address,
-                transmitter_address,
-                channel,
-                brightness,
-            }
-            .to_packet()
-        }
-
         ButtonPressed => {
             let receiver_address = parse_u16(data[0], "receiver_address")?;
             let button_address = parse_u16(data[1], "button_address")?;
