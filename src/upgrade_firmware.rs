@@ -1,7 +1,7 @@
+use std::collections::BTreeSet;
 use std::fs::File;
 use std::io::Read;
 use std::thread::sleep;
-use std::collections::BTreeSet;
 use std::time::Duration;
 
 use ross_protocol::convert_packet::ConvertPacket;

@@ -1,7 +1,7 @@
-use std::thread::sleep;
-use std::time::Duration;
 use std::collections::BTreeSet;
 use std::iter::IntoIterator;
+use std::thread::sleep;
+use std::time::Duration;
 
 use ross_protocol::convert_packet::ConvertPacket;
 use ross_protocol::event::bootloader::*;

@@ -1,5 +1,5 @@
-use std::thread::sleep;
 use std::collections::BTreeSet;
+use std::thread::sleep;
 use std::time::Duration;
 
 use ross_config::config::Config;
