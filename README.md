@@ -1,3 +1,6 @@
+[![crates.io](https://img.shields.io/crates/v/ross-configurator.svg)](https://crates.io/crates/ross-configurator)
+[![crates.io](https://img.shields.io/crates/d/ross-configurator.svg)](https://crates.io/crates/ross-configurator)
+
 # Rusty Old Smart System
 This repository contains a configurator for the `Rusty Old Smart System` project. 
 
