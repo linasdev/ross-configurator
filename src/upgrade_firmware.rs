@@ -1,6 +1,7 @@
 use std::fs::File;
 use std::io::Read;
 use std::thread::sleep;
+use std::collections::BTreeSet;
 use std::time::Duration;
 
 use ross_protocol::convert_packet::ConvertPacket;
@@ -15,7 +16,7 @@ use crate::ross_configurator::*;
 pub fn upgrade_firmware(
     protocol: &mut Protocol<Serial>,
     programmer: &ProgrammerHelloEvent,
-    devices: &Vec<BootloaderHelloEvent>,
+    devices: &BTreeSet<BootloaderHelloEvent>,
     firmware: &str,
     address: u16,
 ) -> Result<(), ConfiguratorError> {

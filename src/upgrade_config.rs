@@ -1,4 +1,5 @@
 use std::thread::sleep;
+use std::collections::BTreeSet;
 use std::time::Duration;
 
 use ross_config::config::Config;
@@ -15,7 +16,7 @@ use crate::ross_configurator::*;
 pub fn upgrade_config(
     protocol: &mut Protocol<Serial>,
     programmer: &ProgrammerHelloEvent,
-    devices: &Vec<BootloaderHelloEvent>,
+    devices: &BTreeSet<BootloaderHelloEvent>,
     config: &Config,
     address: u16,
 ) -> Result<(), ConfiguratorError> {

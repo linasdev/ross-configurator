@@ -1,4 +1,5 @@
 use std::thread::sleep;
+use std::collections::BTreeSet;
 use std::time::Duration;
 
 use ross_protocol::convert_packet::ConvertPacket;
@@ -13,7 +14,7 @@ use crate::ross_configurator::*;
 pub fn set_device_address(
     protocol: &mut Protocol<Serial>,
     programmer: &ProgrammerHelloEvent,
-    devices: &Vec<BootloaderHelloEvent>,
+    devices: &BTreeSet<BootloaderHelloEvent>,
     new_address: u16,
     address: u16,
 ) -> Result<(), ConfiguratorError> {

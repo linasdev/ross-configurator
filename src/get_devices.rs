@@ -1,5 +1,7 @@
 use std::thread::sleep;
 use std::time::Duration;
+use std::collections::BTreeSet;
+use std::iter::IntoIterator;
 
 use ross_protocol::convert_packet::ConvertPacket;
 use ross_protocol::event::bootloader::*;
@@ -12,8 +14,8 @@ use crate::ross_configurator::*;
 pub fn get_devices(
     protocol: &mut Protocol<Serial>,
     programmer: &ProgrammerHelloEvent,
-) -> Result<Vec<BootloaderHelloEvent>, ConfiguratorError> {
-    let mut devices: Vec<BootloaderHelloEvent> = match protocol.exchange_packets(
+) -> Result<BTreeSet<BootloaderHelloEvent>, ConfiguratorError> {
+    let devices: Vec<BootloaderHelloEvent> = match protocol.exchange_packets(
         programmer.to_packet(),
         false,
         TRANSACTION_RETRY_COUNT as u32,
@@ -23,7 +25,7 @@ pub fn get_devices(
         Err(err) => return Err(ConfiguratorError::ProtocolError(err)),
     };
 
-    devices.dedup();
+    let devices: BTreeSet<BootloaderHelloEvent> = devices.into_iter().collect();
 
     for bootloader_hello_event in devices.iter() {
         println!(
