@@ -18,3 +18,11 @@ ross-config = "2.22.0"
 [dependencies.ross-protocol]
 version = "1.33.0"
 features = ["std"]
+
+[lib]
+name = "ross_configurator"
+path = "src/lib.rs"
+
+[[bin]]
+name = "ross_configurator"
+path = "src/main.rs"

@@ -8,23 +8,14 @@ use ross_dsl::Parser;
 use ross_protocol::interface::serial::Serial;
 use ross_protocol::protocol::{Protocol, BROADCAST_ADDRESS};
 
-use crate::event_type::EventType;
-use crate::get_devices::get_devices;
-use crate::get_programmer::get_programmer;
-use crate::ross_configurator::*;
-use crate::send_event::send_event;
-use crate::set_device_address::set_device_address;
-use crate::upgrade_config::upgrade_config;
-use crate::upgrade_firmware::upgrade_firmware;
-
-mod event_type;
-mod get_devices;
-mod get_programmer;
-mod ross_configurator;
-mod send_event;
-mod set_device_address;
-mod upgrade_config;
-mod upgrade_firmware;
+use ross_configurator::event_type::EventType;
+use ross_configurator::get_devices::get_devices;
+use ross_configurator::get_programmer::get_programmer;
+use ross_configurator::ross_configurator::*;
+use ross_configurator::send_event::send_event;
+use ross_configurator::set_device_address::set_device_address;
+use ross_configurator::upgrade_config::upgrade_config;
+use ross_configurator::upgrade_firmware::upgrade_firmware;
 
 fn main() -> Result<(), ConfiguratorError> {
     let matches = clap_app!(ross_configurator =>
