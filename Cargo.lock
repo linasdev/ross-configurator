@@ -472,9 +472,9 @@ dependencies = [
 
 [[package]]
 name = "ross-dsl"
-version = "2.17.0"
+version = "2.18.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b9c092b64a9ec066696e1e742a4b74f6f2114c03dd56730df82e7c20d9ffd93d"
+checksum = "ffaced58fd55a1a0e3ab1e980c24b7939259c5c21a99788edd55592fea900100"
 dependencies = [
  "cool_asserts",
  "cron-parser",
