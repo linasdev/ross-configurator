@@ -17,7 +17,6 @@ pub fn get_programmer(
     let programmer_hello_event: ProgrammerHelloEvent = match protocol.exchange_packet(
         configurator_hello_event.to_packet(),
         false,
-        TRANSACTION_RETRY_COUNT as u32,
         || sleep(Duration::from_millis(PACKET_TIMEOUT_MS)),
     ) {
         Ok(event) => event,

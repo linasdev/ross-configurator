@@ -50,7 +50,6 @@ pub fn upgrade_firmware(
             let _: AckEvent = match protocol.exchange_packet(
                 programmer_start_upload_event.to_packet(),
                 false,
-                TRANSACTION_RETRY_COUNT as u32,
                 || sleep(Duration::from_millis(PACKET_TIMEOUT_MS)),
             ) {
                 Ok(event) => event,
@@ -89,7 +88,6 @@ pub fn upgrade_firmware(
                 let _: AckEvent = match protocol.exchange_packet(
                     data_event.to_packet(),
                     false,
-                    TRANSACTION_RETRY_COUNT as u32,
                     || sleep(Duration::from_millis(PACKET_TIMEOUT_MS)),
                 ) {
                     Ok(event) => event,

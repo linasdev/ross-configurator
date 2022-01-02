@@ -40,7 +40,6 @@ pub fn upgrade_config(
             let _: AckEvent = match protocol.exchange_packet(
                 programmer_start_config_upgrade_event.to_packet(),
                 false,
-                TRANSACTION_RETRY_COUNT as u32,
                 || sleep(Duration::from_millis(PACKET_TIMEOUT_MS)),
             ) {
                 Ok(event) => event,
@@ -79,7 +78,6 @@ pub fn upgrade_config(
                 let _: AckEvent = match protocol.exchange_packet(
                     data_event.to_packet(),
                     false,
-                    TRANSACTION_RETRY_COUNT as u32,
                     || sleep(Duration::from_millis(PACKET_TIMEOUT_MS)),
                 ) {
                     Ok(event) => event,

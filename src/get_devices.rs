@@ -18,7 +18,6 @@ pub fn get_devices(
     let devices: Vec<BootloaderHelloEvent> = match protocol.exchange_packets(
         programmer.to_packet(),
         false,
-        TRANSACTION_RETRY_COUNT as u32,
         || sleep(Duration::from_millis(PACKET_TIMEOUT_MS)),
     ) {
         Ok(event) => event,

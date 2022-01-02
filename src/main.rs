@@ -68,9 +68,7 @@ fn main() -> Result<(), ConfiguratorError> {
 
     let mut protocol = {
         let port = match serialport::new(device, baudrate as u32)
-            .timeout(Duration::from_millis(
-                TRANSACTION_RETRY_COUNT * PACKET_TIMEOUT_MS,
-            ))
+            .timeout(Duration::from_millis(PACKET_TIMEOUT_MS))
             .open()
         {
             Ok(port) => port,
