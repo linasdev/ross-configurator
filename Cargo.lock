@@ -449,9 +449,9 @@ checksum = "f497285884f3fcff424ffc933e56d7cbca511def0c9831a7f9b5f6153e3cc89b"
 
 [[package]]
 name = "ross-config"
-version = "2.25.0"
+version = "2.26.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "463ee692be23718e0060b35251ccc8a7a1d27660e3d516f18e038785267b3ba0"
+checksum = "0da0ec0226f243cd487679f056d7ce1fb5858f69e0c635bfa4746d91bd3073f5"
 dependencies = [
  "chrono",
  "downcast-rs",
@@ -487,9 +487,9 @@ dependencies = [
 
 [[package]]
 name = "ross-protocol"
-version = "2.4.1"
+version = "2.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "068fd88b5c043d1fd9a37c11f1493908dbee4247dcd33e38626d5a794ff3726e"
+checksum = "0c8243bc96a9fc4b45a153bd32ada8d55b1d18d3f331e4b09f894f1286a05192"
 dependencies = [
  "bxcan",
  "cobs",
