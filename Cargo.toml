@@ -16,7 +16,7 @@ ross-dsl = "2.22.0"
 ross-config = "2.27.0"
 
 [dependencies.ross-protocol]
-version = "2.5.0"
+version = "2.6.0"
 features = ["std"]
 
 [lib]
