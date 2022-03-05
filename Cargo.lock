@@ -460,7 +460,7 @@ dependencies = [
 
 [[package]]
 name = "ross-configurator"
-version = "1.6.0"
+version = "1.7.0"
 dependencies = [
  "clap",
  "parse_int",
